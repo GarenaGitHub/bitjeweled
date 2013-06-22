@@ -11,7 +11,7 @@ public class PieceScript : MonoBehaviour
 
     internal TileType currentStrenght = TileType.TodoNormal;
 
-	private GridPoint _Gp;
+    private GridPoint _Gp;
     private GridPoint _Gp1;
     private const float FLOAT_DragDetection = 10f;
     private bool moving = false;
@@ -27,12 +27,12 @@ public class PieceScript : MonoBehaviour
     private Transform myTransform;
     private float dragDelay = 0f;
 
-	/// <summary>
-	/// Gets a value indicating whether this <see cref="PieceScript"/> is moving.
-	/// </summary>
-	/// <value>
-	/// <c>true</c> if moving; otherwise, <c>false</c>.
-	/// </value>
+    /// <summary>
+    /// Gets a value indicating whether this <see cref="PieceScript"/> is moving.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if moving; otherwise, <c>false</c>.
+    /// </value>
     internal bool Moving
     {
         get
@@ -40,13 +40,13 @@ public class PieceScript : MonoBehaviour
             return moving;
         }
     }
-	
-	/// <summary>
-	/// Gets my transform.
-	/// </summary>
-	/// <value>
-	/// My transform.
-	/// </value>
+    
+    /// <summary>
+    /// Gets my transform.
+    /// </summary>
+    /// <value>
+    /// My transform.
+    /// </value>
     internal Transform MyTransform
     {
         get
@@ -54,61 +54,61 @@ public class PieceScript : MonoBehaviour
             return myTransform;
         }
     }
-	
+    
     // Use this for initialization
     void Start()
     {
         myTransform = transform;
     }
-	
-	/// <summary>
-	/// Moves to the given position using X and Y (2D coordinate).
-	/// </summary>
-	/// <param name='x'>
-	/// X.
-	/// </param>
-	/// <param name='y'>
-	/// Y.
-	/// </param>
+    
+    /// <summary>
+    /// Moves to the given position using X and Y (2D coordinate).
+    /// </summary>
+    /// <param name='x'>
+    /// X.
+    /// </param>
+    /// <param name='y'>
+    /// Y.
+    /// </param>
     public void MoveTo(int x, int y)
     {
-		// This could become just a call like this:
-		// MoveTo(x, y, myTransform.position.z); Why we didn't do so?
-		// Because a call within a call adds more CPU cost than just 
-		// these few lines that have to be executed anyway, so we decided
-		// to keep it this way even if it's not elegant.
+        // This could become just a call like this:
+        // MoveTo(x, y, myTransform.position.z); Why we didn't do so?
+        // Because a call within a call adds more CPU cost than just 
+        // these few lines that have to be executed anyway, so we decided
+        // to keep it this way even if it's not elegant.
         moving = true;
-		Board.PlayerCanMove = false;
-		Board.wasMoving = true;
+        Board.PlayerCanMove = false;
+        Board.wasMoving = true;
         destination = new Vector3(GridPositions.GetVector(x, y).x, GridPositions.GetVector(x, y).y, myTransform.position.z);
     }
-	
-	/// <summary>
-	/// Moves to the given position using X,Y and Z (3D coordinate).
-	/// </summary>
-	/// <param name='x'>
-	/// X.
-	/// </param>
-	/// <param name='y'>
-	/// Y.
-	/// </param>
-	/// <param name='z'>
-	/// Z.
-	/// </param>
+    
+    /// <summary>
+    /// Moves to the given position using X,Y and Z (3D coordinate).
+    /// </summary>
+    /// <param name='x'>
+    /// X.
+    /// </param>
+    /// <param name='y'>
+    /// Y.
+    /// </param>
+    /// <param name='z'>
+    /// Z.
+    /// </param>
     public void MoveTo(int x, int y, float z)
     {
         moving = true;
-		Board.PlayerCanMove = false;
-		Board.wasMoving = true;
+        Board.PlayerCanMove = false;
+        Board.wasMoving = true;
         destination = new Vector3(GridPositions.GetVector(x, y).x, GridPositions.GetVector(x, y).y, z);
     }
-	
-	/// <summary>
-	/// Process the click/touch event.
-	/// </summary>
+    
+    /// <summary>
+    /// Process the click/touch event.
+    /// </summary>
     public void Clicked()
     {
-		// Check if the click is legal at this time or else return
+        // Check if the click is legal at this time or else return
         if (!Board.PlayerCanMove ||
             currentStrenght == TileType.BlockedTile ||
             currentStrenght == TileType.TodoExtraStrong ||
@@ -117,7 +117,7 @@ public class PieceScript : MonoBehaviour
         {
             return;
         }
-		// Check if we are the active piece
+        // Check if we are the active piece
         _Gp1 = GridPositions.GetGridPosition(new Vector2(myTransform.position.x, myTransform.position.y));
         if (_Gp1.x != -1 && Board.ActivePiece.x == -1)
         {
@@ -130,19 +130,19 @@ public class PieceScript : MonoBehaviour
                 Board.ActivePiece = _Gp1;
                 return;
             }
-			
-			// See if moving to the new position is a legal move
+            
+            // See if moving to the new position is a legal move
             if (
-                (!Board.Instance.isMatch4 &&
+                (!false &&
                  ((Board.Instance.CheckTileMatchX(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 3)) ||
                   (Board.Instance.CheckTileMatchX(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 3)) ||
                   (Board.Instance.CheckTileMatchY(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 3)) ||
                   (Board.Instance.CheckTileMatchY(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 3)))) ||
-                (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 4)) ||
-                  (Board.Instance.CheckTileMatchX(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 4)) ||
-                  (Board.Instance.CheckTileMatchY(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 4)) ||
-                  (Board.Instance.CheckTileMatchY(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 4))))
+                (false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchY(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchY(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, Board.Instance.matchN))))
                 )
             {
                 MoveTo(Board.ActivePiece.x, Board.ActivePiece.y);
@@ -164,10 +164,10 @@ public class PieceScript : MonoBehaviour
 
         }
     }
-	
-	/// <summary>
-	/// Processes the mouse drag event.
-	/// </summary>
+    
+    /// <summary>
+    /// Processes the mouse drag event.
+    /// </summary>
     void OnMouseDrag()
     {
         if (
@@ -189,17 +189,17 @@ public class PieceScript : MonoBehaviour
         if (dir.x < -FLOAT_DragDetection)
         {
             if (
-                (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 3)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 3))
+                (!false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   )) ||
-                (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 4)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 4)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 4)) ||
-                 (Board.Instance.CheckTileMatchY(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 4))
+                (false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, Board.Instance.matchN)) ||
+                 (Board.Instance.CheckTileMatchY(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   ))
                 )
             {
@@ -220,17 +220,17 @@ public class PieceScript : MonoBehaviour
         if (dir.x > FLOAT_DragDetection)
         {
             if (
-                (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 3)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 3))
+                (!false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   )) ||
-                (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 4)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 4)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 4)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 4))
+                (false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   ))
                 )
             {
@@ -251,17 +251,17 @@ public class PieceScript : MonoBehaviour
         if (dir.y > FLOAT_DragDetection)
         {
             if (
-                (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 3)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 3))
+                (!false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   )) ||
-                (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 4)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 4)) ||
-                  (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 4)) ||
-                  (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 4))
+                (false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   ))
                 )
             {
@@ -282,17 +282,17 @@ public class PieceScript : MonoBehaviour
         if (dir.y < -FLOAT_DragDetection)
         {
             if (
-                (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 3)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 3)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 3))
+                (!false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   )) ||
-                (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 4)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 4)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 4)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 4))
+                (false &&
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, Board.Instance.matchN)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, Board.Instance.matchN)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, Board.Instance.matchN))
                   ))
                 )
             {
@@ -311,20 +311,20 @@ public class PieceScript : MonoBehaviour
             }
         }
     }
-	
-	/// <summary>
-	/// Processes the mouse down event.
-	/// </summary>
+    
+    /// <summary>
+    /// Processes the mouse down event.
+    /// </summary>
     void OnMouseDown()
     {
         currentPoint = Input.mousePosition;
         dragDelay = 0;
         mouseDown = true;
     }
-	
-	/// <summary>
-	/// Processes the mouse up event.
-	/// </summary>
+    
+    /// <summary>
+    /// Processes the mouse up event.
+    /// </summary>
     void OnMouseUp()
     {
         if (mouseDown)
@@ -333,10 +333,10 @@ public class PieceScript : MonoBehaviour
             mouseDown = false;
         }
     }
-	
-	/// <summary>
-	/// Processes the mouse enter event.
-	/// </summary>
+    
+    /// <summary>
+    /// Processes the mouse enter event.
+    /// </summary>
     void OnMouseEnter()
     {
         mouseDown = false;
@@ -345,10 +345,10 @@ public class PieceScript : MonoBehaviour
         if (currentStrenght == TileType.TodoNormal)
             mouseEnterAnimation = true;
     }
-	
-	/// <summary>
-	/// Processes the mouse exit event.
-	/// </summary>
+    
+    /// <summary>
+    /// Processes the mouse exit event.
+    /// </summary>
     void OnMouseExit()
     {
         mouseDown = false;
@@ -363,7 +363,7 @@ public class PieceScript : MonoBehaviour
             mouseClick = false;
             Clicked();
         }
-		//Do we have to play an animation?
+        //Do we have to play an animation?
         if (mouseEnterAnimation)
         {
             counter += Time.deltaTime;
@@ -378,7 +378,7 @@ public class PieceScript : MonoBehaviour
                 counter = 0f;
             }
         }
-		// Move this piece to its destination
+        // Move this piece to its destination
         if (moving)
         {
             velocity = destination - myTransform.position;

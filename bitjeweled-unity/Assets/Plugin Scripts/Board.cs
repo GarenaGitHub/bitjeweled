@@ -277,7 +277,7 @@ public class Board : MonoBehaviour {
     /// <summary>
     /// Set this True If this is a Match 4 instead of a Match 3 
     /// </summary>
-    public bool isMatch4 = false;
+    public int matchN = 3;
 
     /// <summary>
     /// True if new pieces shall drop from the top of the screen.
@@ -837,10 +837,7 @@ public class Board : MonoBehaviour {
     /// If set to <c>true</c> just check.
     /// </param>
     internal bool CheckTileMatchX(int x, int y, bool justCheck) {
-        if (!isMatch4)
-            return CheckTileMatchX(x, y, x, y, justCheck, 3);
-        else
-            return CheckTileMatchX(x, y, x, y, justCheck, 4);
+        return CheckTileMatchX(x, y, x, y, justCheck, matchN);
     }
 
     /// <summary>
@@ -998,10 +995,7 @@ public class Board : MonoBehaviour {
     /// If set to <c>true</c> just check.
     /// </param>
     internal bool CheckTileMatchY(int x, int y, bool justCheck) {
-        if (!isMatch4)
-            return CheckTileMatchY(x, y, x, y, justCheck, 3);
-        else
-            return CheckTileMatchY(x, y, x, y, justCheck, 4);
+        return CheckTileMatchY(x, y, x, y, justCheck, matchN);
     }
 
     /// <summary>
@@ -1436,38 +1430,22 @@ public class Board : MonoBehaviour {
             for (gp.x = 0; gp.x < columns; gp.x++) {
                 for (gp.y = 0; gp.y < rows; gp.y++) {
                     if (gp != ActivePiece) {
-                        if (!isMatch4) {
-                            if (CheckTileMatchX(ActivePiece.x, ActivePiece.y, gp.x, gp.y, true, 3) ||
-                                CheckTileMatchY(ActivePiece.x, ActivePiece.y, gp.x, gp.y, true, 3) ||
-                                CheckTileMatchX(gp.x, gp.y, ActivePiece.x, ActivePiece.y, true, 3) ||
-                                CheckTileMatchY(gp.x, gp.y, ActivePiece.x, ActivePiece.y, true, 3))
-                                return;
-                        } else {
-                            if (CheckTileMatchX(ActivePiece.x, ActivePiece.y, gp.x, gp.y, true, 4) ||
-                                CheckTileMatchY(ActivePiece.x, ActivePiece.y, gp.x, gp.y, true, 4) ||
-                                CheckTileMatchX(gp.x, gp.y, ActivePiece.x, ActivePiece.y, true, 4) ||
-                                CheckTileMatchY(gp.x, gp.y, ActivePiece.x, ActivePiece.y, true, 4))
-                                return;
-                        }
+                        if (CheckTileMatchX(ActivePiece.x, ActivePiece.y, gp.x, gp.y, true, matchN) ||
+                            CheckTileMatchY(ActivePiece.x, ActivePiece.y, gp.x, gp.y, true, matchN) ||
+                            CheckTileMatchX(gp.x, gp.y, ActivePiece.x, ActivePiece.y, true, matchN) ||
+                            CheckTileMatchY(gp.x, gp.y, ActivePiece.x, ActivePiece.y, true, matchN))
+                            return;
                     }
                 }
             }
         } else {
             for (gp.x = 0; gp.x < columns; gp.x++) {
                 for (gp.y = 0; gp.y < rows; gp.y++) {
-                    if (!isMatch4) {
-                        if (CheckTileMatchX(gp.x, gp.y, gp.x + 1, gp.y, true, 3) ||
-                            CheckTileMatchY(gp.x, gp.y, gp.x - 1, gp.y, true, 3) ||
-                            CheckTileMatchX(gp.x, gp.y, gp.x, gp.y + 1, true, 3) ||
-                            CheckTileMatchY(gp.x, gp.y, gp.x, gp.y - 1, true, 3))
-                            return;
-                    } else {
-                        if (CheckTileMatchX(gp.x, gp.y, gp.x + 1, gp.y, true, 4) ||
-                            CheckTileMatchY(gp.x, gp.y, gp.x - 1, gp.y, true, 4) ||
-                            CheckTileMatchX(gp.x, gp.y, gp.x, gp.y + 1, true, 4) ||
-                            CheckTileMatchY(gp.x, gp.y, gp.x, gp.y - 1, true, 4))
-                            return;
-                    }
+                    if (CheckTileMatchX(gp.x, gp.y, gp.x + 1, gp.y, true, matchN) ||
+                        CheckTileMatchY(gp.x, gp.y, gp.x - 1, gp.y, true, matchN) ||
+                        CheckTileMatchX(gp.x, gp.y, gp.x, gp.y + 1, true, matchN) ||
+                        CheckTileMatchY(gp.x, gp.y, gp.x, gp.y - 1, true, matchN))
+                        return;
                 }
             }
         }
