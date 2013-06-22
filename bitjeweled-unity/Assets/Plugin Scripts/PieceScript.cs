@@ -134,15 +134,15 @@ public class PieceScript : MonoBehaviour
 			// See if moving to the new position is a legal move
             if (
                 (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true)) ||
-                  (Board.Instance.CheckTileMatchX(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true)) ||
-                  (Board.Instance.CheckTileMatchY(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true)) ||
-                  (Board.Instance.CheckTileMatchY(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true)))) ||
+                 ((Board.Instance.CheckTileMatchX(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 3)) ||
+                  (Board.Instance.CheckTileMatchX(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 3)) ||
+                  (Board.Instance.CheckTileMatchY(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 3)) ||
+                  (Board.Instance.CheckTileMatchY(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 3)))) ||
                 (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX4(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true)) ||
-                  (Board.Instance.CheckTileMatchX4(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true)) ||
-                  (Board.Instance.CheckTileMatchY4(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true)) ||
-                  (Board.Instance.CheckTileMatchY4(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true))))
+                 ((Board.Instance.CheckTileMatchX(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 4)) ||
+                  (Board.Instance.CheckTileMatchX(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 4)) ||
+                  (Board.Instance.CheckTileMatchY(_Gp1.x, _Gp1.y, Board.ActivePiece.x, Board.ActivePiece.y, true, 4)) ||
+                  (Board.Instance.CheckTileMatchY(Board.ActivePiece.x, Board.ActivePiece.y, _Gp1.x, _Gp1.y, true, 4))))
                 )
             {
                 MoveTo(Board.ActivePiece.x, Board.ActivePiece.y);
@@ -190,16 +190,16 @@ public class PieceScript : MonoBehaviour
         {
             if (
                 (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 3)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 3))
                   )) ||
                 (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX4(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true)) ||
-                  (Board.Instance.CheckTileMatchX4(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY4(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true)) ||
-                 (Board.Instance.CheckTileMatchY4(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 4)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 4)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x - 1, _Gp.y, true, 4)) ||
+                 (Board.Instance.CheckTileMatchY(_Gp.x - 1, _Gp.y, _Gp.x, _Gp.y, true, 4))
                   ))
                 )
             {
@@ -221,16 +221,16 @@ public class PieceScript : MonoBehaviour
         {
             if (
                 (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 3)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 3))
                   )) ||
                 (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX4(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true)) ||
-                  (Board.Instance.CheckTileMatchX4(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY4(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY4(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 4)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 4)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x + 1, _Gp.y, true, 4)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x + 1, _Gp.y, _Gp.x, _Gp.y, true, 4))
                   ))
                 )
             {
@@ -252,16 +252,16 @@ public class PieceScript : MonoBehaviour
         {
             if (
                 (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 3)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 3))
                   )) ||
                 (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX4(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true)) ||
-                  (Board.Instance.CheckTileMatchX4(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true)) ||
-                  (Board.Instance.CheckTileMatchY4(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true)) ||
-                  (Board.Instance.CheckTileMatchY4(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 4)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 4)) ||
+                  (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y - 1, true, 4)) ||
+                  (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y - 1, _Gp.x, _Gp.y, true, 4))
                   ))
                 )
             {
@@ -283,16 +283,16 @@ public class PieceScript : MonoBehaviour
         {
             if (
                 (!Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true)) ||
-                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true)) ||
-                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 3)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 3)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 3))
                   )) ||
                 (Board.Instance.isMatch4 &&
-                 ((Board.Instance.CheckTileMatchX4(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true)) ||
-                  (Board.Instance.CheckTileMatchX4(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true)) ||
-                (Board.Instance.CheckTileMatchY4(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true)) ||
-                (Board.Instance.CheckTileMatchY4(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true))
+                 ((Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 4)) ||
+                  (Board.Instance.CheckTileMatchX(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 4)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y, _Gp.x, _Gp.y + 1, true, 4)) ||
+                (Board.Instance.CheckTileMatchY(_Gp.x, _Gp.y + 1, _Gp.x, _Gp.y, true, 4))
                   ))
                 )
             {
