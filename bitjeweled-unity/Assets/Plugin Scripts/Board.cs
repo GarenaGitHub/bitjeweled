@@ -362,6 +362,11 @@ public class Board : MonoBehaviour {
     public List<GameObject> PiecesNormal;
 
     /// <summary>
+    /// The pieces bomb.
+    /// </summary>
+    public List<GameObject> PiecesBomb;
+
+    /// <summary>
     /// The pieces strong.
     /// </summary>
     public List<GameObject> PiecesStrong;
@@ -469,6 +474,11 @@ public class Board : MonoBehaviour {
     /// The normal pieces in use.
     /// </summary>
     private static List<GameObject> piecesToUseNormal = new List<GameObject>();
+
+    /// <summary>
+    /// The bomb pieces in use.
+    /// </summary>
+    private static List<GameObject> piecesToUseBomb = new List<GameObject>();
 
     /// <summary>
     /// The strong pieces in use.
@@ -731,7 +741,7 @@ public class Board : MonoBehaviour {
                                     PlayingPieces[x, y] = new PlayingPiece(Instantiate(piecesToUseSuperStrong[t], new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, (PieceColour) t);
                                     break;
                             }
-                            if (CheckTileMatchX(x, y, true) || CheckTileMatchY(x, y, true)) {
+                            if (CheckTileMatchX(x, y, true, matchN) || CheckTileMatchY(x, y, true, matchN)) {
                                 DestroyImmediate(PlayingPieces[x, y].Piece);
                                 PlayingPieces[x, y] = null;
                                 again = true;
@@ -755,6 +765,7 @@ public class Board : MonoBehaviour {
     private void GetPiecesToUse() {
         // Clear all the containers
         piecesToUseNormal.Clear();
+        piecesToUseBomb.Clear();
         piecesToUseStrong.Clear();
         piecesToUseExtraStrong.Clear();
         piecesToUseSuperStrong.Clear();
@@ -774,6 +785,7 @@ public class Board : MonoBehaviour {
                 }
             } while (redo);
             // Now assign the same pieces in their stronger versions
+            piecesToUseBomb.Add(PiecesBomb[tempIdx]);
             piecesToUseStrong.Add(PiecesStrong[tempIdx]);
             piecesToUseExtraStrong.Add(PiecesExtraStrong[tempIdx]);
             piecesToUseSuperStrong.Add(PiecesSuperStrong[tempIdx]);
@@ -836,8 +848,8 @@ public class Board : MonoBehaviour {
     /// <param name='justCheck'>
     /// If set to <c>true</c> just check.
     /// </param>
-    internal bool CheckTileMatchX(int x, int y, bool justCheck) {
-        return CheckTileMatchX(x, y, x, y, justCheck, matchN);
+    internal bool CheckTileMatchX(int x, int y, bool justCheck, int n) {
+        return CheckTileMatchX(x, y, x, y, justCheck, n);
     }
 
     /// <summary>
@@ -923,16 +935,8 @@ public class Board : MonoBehaviour {
             PlayingPieces[x2, y2] != null &&
             PlayingPieces[x2, y2].Piece != null) {
 
-            bool isDebug = new Vector2(x1, y1).Equals(new Vector2(x2, y2));
-            isDebug = false;
-            if (isDebug)
-                Debug.Log(x1 + " " + y1);
-
             for (int shift = 0; shift < n; shift++) {
                 if (((x2 + (n - 1) - shift) < columns) && ((x2 - shift) >= 0)) {
-                    if (isDebug) {
-                        Debug.Log("1");
-                    }
                     bool validPieces = true;
                     for (int i = 0; i < n && validPieces; i++) {
                         if (intGridDescriptor[x2 + i - shift, y2] == -1 ||
@@ -943,9 +947,6 @@ public class Board : MonoBehaviour {
                         }
                     }
                     if (validPieces) {
-                        if (isDebug) {
-                            Debug.Log("2");
-                        }
                         bool notMoving = !PlayingPieces[x1, y1].Moving;
                         for (int i = 0; i < n && notMoving; i++) {
                             if (i - shift == 0) continue;
@@ -954,9 +955,6 @@ public class Board : MonoBehaviour {
                             }
                         }
                         if (!justCheck && notMoving) {
-                            if (isDebug) {
-                                Debug.Log("3");
-                            }
                             PlayingPieces[x1, y1].Selected = true;
                             CheckBomb(x1, y1);
                             for (int i = 1; i < n; i++) {
@@ -994,8 +992,8 @@ public class Board : MonoBehaviour {
     /// <param name='justCheck'>
     /// If set to <c>true</c> just check.
     /// </param>
-    internal bool CheckTileMatchY(int x, int y, bool justCheck) {
-        return CheckTileMatchY(x, y, x, y, justCheck, matchN);
+    internal bool CheckTileMatchY(int x, int y, bool justCheck, int n) {
+        return CheckTileMatchY(x, y, x, y, justCheck, n);
     }
 
     /// <summary>
@@ -1042,16 +1040,8 @@ public class Board : MonoBehaviour {
             PlayingPieces[x2, y2] != null &&
             PlayingPieces[x2, y2].Piece != null) {
 
-            bool isDebug = new Vector2(x1, y1).Equals(new Vector2(x2, y2));
-            isDebug = false;
-            if (isDebug)
-                Debug.Log(x1 + " " + y1);
-
             for (int shift = 0; shift < n; shift++) {
                 if (((y2 + (n - 1) - shift) < rows) && ((y2 - shift) >= 0)) {
-                    if (isDebug) {
-                        Debug.Log("1");
-                    }
                     bool validPieces = true;
                     for (int i = 0; i < n && validPieces; i++) {
                         if (intGridDescriptor[x2, y2 + i - shift] == -1 ||
@@ -1062,9 +1052,6 @@ public class Board : MonoBehaviour {
                         }
                     }
                     if (validPieces) {
-                        if (isDebug) {
-                            Debug.Log("2");
-                        }
                         bool notMoving = !PlayingPieces[x1, y1].Moving;
                         for (int i = 0; i < n && notMoving; i++) {
                             if (i - shift == 0) continue;
@@ -1073,9 +1060,6 @@ public class Board : MonoBehaviour {
                             }
                         }
                         if (!justCheck && notMoving) {
-                            if (isDebug) {
-                                Debug.Log("3");
-                            }
                             PlayingPieces[x1, y1].Selected = true;
                             CheckBomb(x1, y1);
                             for (int i = 1; i < n; i++) {
@@ -1225,10 +1209,11 @@ public class Board : MonoBehaviour {
             // loop throught and destroy them
             for (int y = 0; y < rows; y++) {
                 for (int x = 0; x < columns; x++) {
-                    CheckTileMatchX(x, y, false);
-                    CheckTileMatchY(x, y, false);
+                    CheckTileMatchX(x, y, false, matchN);
+                    CheckTileMatchY(x, y, false, matchN);
                 }
             }
+
             // Clear the countrers
             int specialCount = 0;
             totalDestroyedPieces = 0;
@@ -1241,6 +1226,13 @@ public class Board : MonoBehaviour {
             for (int y = 0; y < rows; y++) {
                 for (int x = 0; x < columns; x++) {
                     if (PlayingPieces[x, y] != null && PlayingPieces[x, y].Selected && PlayingPieces[x, y].Piece != null) {
+                        // match-4 special rule
+                        bool matched4 = CheckTileMatchX(x, y, true, 4) || CheckTileMatchY(x, y, true, 4);
+                        GameObject piece4 = null;
+                        if (matched4) {
+                            piece4 = PlayingPieces[x, y].Piece;
+                        }
+
                         // Keep track of the special pieces
                         if (PlayingPieces[x, y].SpecialPiece)
                             specialCount++;
@@ -1276,12 +1268,18 @@ public class Board : MonoBehaviour {
                         switch (PlayingPieces[x, y].pieceScript.currentStrenght) {
                             case TileType.TodoNormal: // a normal piece, just destroy it
                                 Destroy(PlayingPieces[x, y].Piece);
-                                PlayingPieces[x, y].Piece = null;
                                 PlayingPieces[x, y].Selected = false;
-                                PlayingPieces[x, y] = null;
                                 gridDescriptor[x, y] = (int) TileType.Done;
                                 grid[x, y].Tile.renderer.material = tileDoneMaterial;
                                 totalNormalPiecesDestroyed++;
+                                if (piece4 != null) {
+                                    PlayingPieces[x, y].Piece = Instantiate(piecesToUseBomb[(int) PlayingPieces[x, y].Type], new Vector3(currentPosition.x, currentPosition.y, zPiecePosition), Quaternion.identity) as GameObject;
+                                    PlayingPieces[x, y].Piece.transform.localScale = generalScale;
+                                    //PlayingPieces[x, y].Bomb = true;
+                                } else {
+                                    PlayingPieces[x, y].Piece = null;
+                                    PlayingPieces[x, y] = null;
+                                }
                                 break;
                             case TileType.TodoStrong: // Downgrade the piece
                                 Destroy(PlayingPieces[x, y].Piece);
@@ -1397,7 +1395,7 @@ public class Board : MonoBehaviour {
                                 PlayingPieces[x, y] = new PlayingPiece(Instantiate(piecesToUseNormal[t], new Vector3(v0.x, v0.y, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, (PieceColour) t);
                             else
                                 PlayingPieces[x, y] = new PlayingPiece(Instantiate(piecesToUseNormal[t], new Vector3(v0.x, v0.y + Random.Range(20f, 30f), zPiecePosition), Quaternion.identity) as GameObject, (PieceColour) t);
-                            if (CheckTileMatchX(x, y, true) || CheckTileMatchY(x, y, true)) {
+                            if (CheckTileMatchX(x, y, true, matchN) || CheckTileMatchY(x, y, true, matchN)) {
                                 DestroyImmediate(PlayingPieces[x, y].Piece);
                                 PlayingPieces[x, y] = null;
                                 again = true;
