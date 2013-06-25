@@ -143,6 +143,7 @@ internal class PlayingPiece
     internal bool SpecialPiece = false;
     internal bool Bomb = false;
     internal bool Match4 = false;
+    internal bool Match5 = false;
     private bool selected = false;
     private GameObject piece = null;
     private PieceScript ps = null;

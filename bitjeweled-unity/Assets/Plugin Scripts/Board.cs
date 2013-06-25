@@ -344,7 +344,7 @@ public class Board : MonoBehaviour {
     /// <summary>
     /// The bomb piece.
     /// </summary>
-    public GameObject bombPiece;
+    public GameObject masterPiece;
 
     /// <summary>
     /// The bomb damage extent.
@@ -725,7 +725,7 @@ public class Board : MonoBehaviour {
                             switch (gridDescriptor[x, y]) {
                                 case (int) TileType.TodoNormal:
                                     if (useBombs && ((Random.Range(1, 100000) % 29) == 0)) {
-                                        PlayingPieces[x, y] = new PlayingPiece(Instantiate(bombPiece, new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, PieceColour.Bomb);
+                                        PlayingPieces[x, y] = new PlayingPiece(Instantiate(masterPiece, new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, PieceColour.Bomb);
                                         PlayingPieces[x, y].Bomb = true;
                                     } else {
                                         PlayingPieces[x, y] = new PlayingPiece(Instantiate(piecesToUseNormal[t], new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, (PieceColour) t);
@@ -967,8 +967,11 @@ public class Board : MonoBehaviour {
                             if (hintTimer >= hintTime) {
                                 ActivateHint(x1, y1, x2, y2);
                             }
+                            if (n == 5) {
+                                PlayingPieces[x2 - shift + n / 2, y2].Match5 = true;
+                            }
                             if (n == 4) {
-                                PlayingPieces[x2 - shift+n/2, y2].Match4 = true;
+                                PlayingPieces[x2 - shift + n / 2, y2].Match4 = true;
                             }
                             return true;
                         }
@@ -1074,6 +1077,9 @@ public class Board : MonoBehaviour {
                         } else {
                             if (hintTimer >= hintTime) {
                                 ActivateHint(x1, y1, x2, y2);
+                            }
+                            if (n == 5) {
+                                PlayingPieces[x2, y2 - shift + n / 2].Match5 = true;
                             }
                             if (n == 4) {
                                 PlayingPieces[x2, y2 - shift + n / 2].Match4 = true;
@@ -1233,9 +1239,17 @@ public class Board : MonoBehaviour {
             for (int y = 0; y < rows; y++) {
                 for (int x = 0; x < columns; x++) {
                     if (PlayingPieces[x, y] != null && PlayingPieces[x, y].Selected && PlayingPieces[x, y].Piece != null) {
+                        // match-5 special rule
+                        bool matched5 = CheckTileMatchX(x, y, true, 5) || CheckTileMatchY(x, y, true, 5);
+                        if (matched5) {
+                            Debug.Log("5" + " " + x + " " + y);
+                        }
+
                         // match-4 special rule
-                        bool matched4 = CheckTileMatchX(x, y, true, 4) || CheckTileMatchY(x, y, true, 4);
+                        bool matched4 = false;
+                        matched4 = !matched5 && (CheckTileMatchX(x, y, true, 4) || CheckTileMatchY(x, y, true, 4));
                         if (matched4) {
+                            Debug.Log("4" + " " + x + " " + y);
                             piece4 = PlayingPieces[x, y].Piece;
                         }
 
@@ -1278,7 +1292,12 @@ public class Board : MonoBehaviour {
                                 gridDescriptor[x, y] = (int) TileType.Done;
                                 grid[x, y].Tile.renderer.material = tileDoneMaterial;
                                 totalNormalPiecesDestroyed++;
-                                if (piece4 != null && PlayingPieces[x, y].Match4) {
+                                if (PlayingPieces[x, y].Match5) {
+                                    PlayingPieces[x, y].Match5 = false;
+                                    PlayingPieces[x, y].Piece = Instantiate(masterPiece, new Vector3(currentPosition.x, currentPosition.y, zPiecePosition), Quaternion.identity) as GameObject;
+                                    PlayingPieces[x, y].Piece.transform.localScale = generalScale;
+                                    PlayingPieces[x, y].Bomb = true;
+                                } else if (piece4 != null && PlayingPieces[x, y].Match4) {
                                     PlayingPieces[x, y].Match4 = false;
                                     PlayingPieces[x, y].Piece = Instantiate(piecesToUseBomb[(int) PlayingPieces[x, y].Type], new Vector3(currentPosition.x, currentPosition.y, zPiecePosition), Quaternion.identity) as GameObject;
                                     PlayingPieces[x, y].Piece.transform.localScale = generalScale;
@@ -1393,7 +1412,7 @@ public class Board : MonoBehaviour {
                         PlayingPieces[x, y].SpecialPiece = true;
                     } else if (bc == 0 && useBombs && ((Random.Range(1, 100000) % 29) == 0)) {
                         bc++;
-                        PlayingPieces[x, y] = new PlayingPiece(Instantiate(bombPiece, new Vector3(v0.x, v0.y, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, PieceColour.Bomb);
+                        PlayingPieces[x, y] = new PlayingPiece(Instantiate(masterPiece, new Vector3(v0.x, v0.y, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, PieceColour.Bomb);
                         PlayingPieces[x, y].Bomb = true;
                     } else {
                         bool again = false;
