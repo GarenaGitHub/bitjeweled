@@ -942,7 +942,7 @@ public class Board : MonoBehaviour {
                         if (intGridDescriptor[x2 + i - shift, y2] == -1 ||
                             gridDescriptor[x2 + i - shift, y2] == (int) TileType.NoTile ||
                             gridDescriptor[x2 + i - shift, y2] == (int) TileType.BlockedTile ||
-                            ((intGridDescriptor[x2, y2] != intGridDescriptor[x2 + i - shift, y2]) && !PlayingPieces[x2 + i - shift, y2].Bomb)) {
+                            intGridDescriptor[x2, y2] != intGridDescriptor[x2 + i - shift, y2]) {
                             validPieces = false;
                         }
                     }
@@ -966,6 +966,9 @@ public class Board : MonoBehaviour {
                         } else {
                             if (hintTimer >= hintTime) {
                                 ActivateHint(x1, y1, x2, y2);
+                            }
+                            if (n == 4) {
+                                PlayingPieces[x2 - shift+n/2, y2].Match4 = true;
                             }
                             return true;
                         }
@@ -1047,7 +1050,7 @@ public class Board : MonoBehaviour {
                         if (intGridDescriptor[x2, y2 + i - shift] == -1 ||
                             gridDescriptor[x2, y2 + i - shift] == (int) TileType.NoTile ||
                             gridDescriptor[x2, y2 + i - shift] == (int) TileType.BlockedTile ||
-                            ((intGridDescriptor[x2, y2] != intGridDescriptor[x2, y2 + i - shift]) && !PlayingPieces[x2, y2 + i - shift].Bomb)) {
+                            intGridDescriptor[x2, y2] != intGridDescriptor[x2, y2 + i - shift]) {
                             validPieces = false;
                         }
                     }
@@ -1071,6 +1074,9 @@ public class Board : MonoBehaviour {
                         } else {
                             if (hintTimer >= hintTime) {
                                 ActivateHint(x1, y1, x2, y2);
+                            }
+                            if (n == 4) {
+                                PlayingPieces[x2, y2 - shift + n / 2].Match4 = true;
                             }
                             return true;
                         }
@@ -1223,12 +1229,12 @@ public class Board : MonoBehaviour {
             totalExtraStrongPiecesDestroyed = 0;
 
             // Destruction of the pieces marked as matching
+            GameObject piece4 = null;
             for (int y = 0; y < rows; y++) {
                 for (int x = 0; x < columns; x++) {
                     if (PlayingPieces[x, y] != null && PlayingPieces[x, y].Selected && PlayingPieces[x, y].Piece != null) {
                         // match-4 special rule
                         bool matched4 = CheckTileMatchX(x, y, true, 4) || CheckTileMatchY(x, y, true, 4);
-                        GameObject piece4 = null;
                         if (matched4) {
                             piece4 = PlayingPieces[x, y].Piece;
                         }
@@ -1272,10 +1278,12 @@ public class Board : MonoBehaviour {
                                 gridDescriptor[x, y] = (int) TileType.Done;
                                 grid[x, y].Tile.renderer.material = tileDoneMaterial;
                                 totalNormalPiecesDestroyed++;
-                                if (piece4 != null) {
+                                if (piece4 != null && PlayingPieces[x, y].Match4) {
+                                    PlayingPieces[x, y].Match4 = false;
                                     PlayingPieces[x, y].Piece = Instantiate(piecesToUseBomb[(int) PlayingPieces[x, y].Type], new Vector3(currentPosition.x, currentPosition.y, zPiecePosition), Quaternion.identity) as GameObject;
                                     PlayingPieces[x, y].Piece.transform.localScale = generalScale;
-                                    //PlayingPieces[x, y].Bomb = true;
+                                    PlayingPieces[x, y].Bomb = true;
+                                    piece4 = null;
                                 } else {
                                     PlayingPieces[x, y].Piece = null;
                                     PlayingPieces[x, y] = null;
