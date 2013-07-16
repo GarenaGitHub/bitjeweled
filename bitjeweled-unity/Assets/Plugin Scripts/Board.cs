@@ -100,7 +100,7 @@ public class Board : MonoBehaviour {
     /// <summary>
     /// Time (in minutes) to finish the level.
     /// </summary>
-    public static float LevelTime = 10f;
+    public static float LevelTime = 2f;
 
 
     /// <summary>
@@ -227,7 +227,7 @@ public class Board : MonoBehaviour {
     /// <summary>
     /// Time (in minutes) to finish the level.
     /// </summary>
-    public float levelTime = 10f;
+    public float levelTime = 2f;
 
     /// <summary>
     /// Time (in seconds) since last move before to show a hint.
@@ -339,11 +339,6 @@ public class Board : MonoBehaviour {
     /// </summary>
     public GameObject specialPiece;
 
-    public bool useBombs = false;
-
-    /// <summary>
-    /// The bomb piece.
-    /// </summary>
     public GameObject masterPiece;
 
     /// <summary>
@@ -355,6 +350,10 @@ public class Board : MonoBehaviour {
     /// The bomb effect.
     /// </summary>
     public GameObject bombEffect;
+    /// <summary>
+    /// The bomb effect.
+    /// </summary>
+    public GameObject crossEffect;
 
     /// <summary>
     /// The pieces normal.
@@ -724,12 +723,7 @@ public class Board : MonoBehaviour {
                             int t = Random.Range(0, maxPieces);
                             switch (gridDescriptor[x, y]) {
                                 case (int) TileType.TodoNormal:
-                                    if (useBombs && ((Random.Range(1, 100000) % 29) == 0)) {
-                                        PlayingPieces[x, y] = new PlayingPiece(Instantiate(masterPiece, new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, PieceColour.Bomb);
-                                        PlayingPieces[x, y].Bomb = true;
-                                    } else {
-                                        PlayingPieces[x, y] = new PlayingPiece(Instantiate(piecesToUseNormal[t], new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, (PieceColour) t);
-                                    }
+                                    PlayingPieces[x, y] = new PlayingPiece(Instantiate(piecesToUseNormal[t], new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, (PieceColour) t);
                                     break;
                                 case (int) TileType.TodoStrong:
                                     PlayingPieces[x, y] = new PlayingPiece(Instantiate(piecesToUseStrong[t], new Vector3(xp, yp, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, (PieceColour) t);
@@ -873,45 +867,58 @@ public class Board : MonoBehaviour {
     }
 
     /// <summary>
-    /// Checks if the piece is a bomb and act on that.
+    /// Selects the cross area.
     /// </summary>
-    /// <param name='x'>
-    /// X.
-    /// </param>
-    /// <param name='y'>
-    /// Y.
-    /// </param>
-    void CheckBomb(int x, int y) {
-        if (PlayingPieces[x, y].Bomb) {
-            SelectBombArea(x, y);
-            Instantiate(bombEffect, PlayingPieces[x, y].Piece.transform.position, Quaternion.identity);
-            // ********************************************************************************************
-            // You might want to add your own audio here in case your bomb effect doesn't include the audio
-            // ********************************************************************************************
+    void SelectCrossArea(int x, int y) {
+        for (int y0 = 0; y0 < rows; y0++) {
+            if ((gridDescriptor[x, y0] != (int) TileType.NoTile) &&
+                (gridDescriptor[x, y0] != (int) TileType.BlockedTile) &&
+                (gridDescriptor[x, y0] != (int) TileType.TodoStrong) &&
+                (gridDescriptor[x, y0] != (int) TileType.TodoExtraStrong) &&
+                (gridDescriptor[x, y0] != (int) TileType.TodoSuperStrong) &&
+                PlayingPieces[x, y0] != null &&
+                PlayingPieces[x, y0].Piece != null) {
+
+                PlayingPieces[x, y0].Selected = true;
+            }
+        }
+        for (int x0 = 0; x0 < columns; x0++) {
+            if ((gridDescriptor[x0, y] != (int) TileType.NoTile) &&
+                (gridDescriptor[x0, y] != (int) TileType.BlockedTile) &&
+                (gridDescriptor[x0, y] != (int) TileType.TodoStrong) &&
+                (gridDescriptor[x0, y] != (int) TileType.TodoExtraStrong) &&
+                (gridDescriptor[x0, y] != (int) TileType.TodoSuperStrong) &&
+                PlayingPieces[x0, y] != null &&
+                PlayingPieces[x0, y].Piece != null) {
+
+                PlayingPieces[x0, y].Selected = true;
+            }
         }
     }
 
-    /// <summary>
-    /// Checks the tile match on x given source and destination.
-    /// </summary>
-    /// <returns>
-    /// The tile match x.
-    /// </returns>
-    /// <param name='x1'>
-    /// If set to <c>true</c> x1.
-    /// </param>
-    /// <param name='y1'>
-    /// If set to <c>true</c> y1.
-    /// </param>
-    /// <param name='x2'>
-    /// If set to <c>true</c> x2.
-    /// </param>
-    /// <param name='y2'>
-    /// If set to <c>true</c> y2.
-    /// </param>
-    /// <param name='justCheck'>
-    /// If set to <c>true</c> just check.
-    /// </param>
+    void CheckSpecial(int x, int y) {
+        CheckCross(x, y);
+        CheckBomb(x, y);
+    }
+
+    void CheckCross(int x, int y) {
+        if (PlayingPieces[x, y].Cross) {
+            SelectCrossArea(x, y);
+            if (crossEffect != null) {
+                Instantiate(crossEffect, PlayingPieces[x, y].Piece.transform.position, Quaternion.identity);
+            }
+        }
+    }
+
+    void CheckBomb(int x, int y) {
+        if (PlayingPieces[x, y].Bomb) {
+            SelectBombArea(x, y);
+            if (bombEffect != null) {
+                Instantiate(bombEffect, PlayingPieces[x, y].Piece.transform.position, Quaternion.identity);
+            }
+        }
+    }
+
     internal bool CheckTileMatchX(int x1, int y1, int x2, int y2, bool justCheck, int n) {
         bool match = false;
         if (x1 < 0 || x1 > columns - 1 || y1 < 0 || y1 > rows - 1 || x2 < 0 || x2 > columns - 1 || y2 < 0 || y2 > rows - 1)
@@ -942,7 +949,7 @@ public class Board : MonoBehaviour {
                         if (intGridDescriptor[x2 + i - shift, y2] == -1 ||
                             gridDescriptor[x2 + i - shift, y2] == (int) TileType.NoTile ||
                             gridDescriptor[x2 + i - shift, y2] == (int) TileType.BlockedTile ||
-                            intGridDescriptor[x2, y2] != intGridDescriptor[x2 + i - shift, y2]) {
+                            (intGridDescriptor[x2, y2] != intGridDescriptor[x2 + i - shift, y2] && !PlayingPieces[x2 + i - shift, y2].Cross)) {
                             validPieces = false;
                         }
                     }
@@ -956,11 +963,11 @@ public class Board : MonoBehaviour {
                         }
                         if (!justCheck && notMoving) {
                             PlayingPieces[x1, y1].Selected = true;
-                            CheckBomb(x1, y1);
+                            CheckSpecial(x1, y1);
                             for (int i = 1; i < n; i++) {
                                 if (i - shift == 0) continue;
                                 PlayingPieces[x2 + i - shift, y2].Selected = true;
-                                CheckBomb(x2 + i - shift, y2);
+                                CheckSpecial(x2 + i - shift, y2);
                             }
                             match = true;
                         } else {
@@ -968,10 +975,12 @@ public class Board : MonoBehaviour {
                                 ActivateHint(x1, y1, x2, y2);
                             }
                             if (n == 5) {
-                                PlayingPieces[x2 - shift + n / 2, y2].Match5 = true;
+                                PlayingPieces[x2 - shift + 2, y2].Match5 = true;
                             }
                             if (n == 4) {
-                                PlayingPieces[x2 - shift + n / 2, y2].Match4 = true;
+                                if (!PlayingPieces[x2 - shift + 1, y2].Match5) {
+                                    PlayingPieces[x2 - shift + 2, y2].Match4 = true;
+                                }
                             }
                             return true;
                         }
@@ -1053,7 +1062,7 @@ public class Board : MonoBehaviour {
                         if (intGridDescriptor[x2, y2 + i - shift] == -1 ||
                             gridDescriptor[x2, y2 + i - shift] == (int) TileType.NoTile ||
                             gridDescriptor[x2, y2 + i - shift] == (int) TileType.BlockedTile ||
-                            intGridDescriptor[x2, y2] != intGridDescriptor[x2, y2 + i - shift]) {
+                            (intGridDescriptor[x2, y2] != intGridDescriptor[x2, y2 + i - shift] && !PlayingPieces[x2, y2 + i - shift].Cross)) {
                             validPieces = false;
                         }
                     }
@@ -1067,11 +1076,11 @@ public class Board : MonoBehaviour {
                         }
                         if (!justCheck && notMoving) {
                             PlayingPieces[x1, y1].Selected = true;
-                            CheckBomb(x1, y1);
+                            CheckSpecial(x1, y1);
                             for (int i = 1; i < n; i++) {
                                 if (i - shift == 0) continue;
                                 PlayingPieces[x2, y2 + i - shift].Selected = true;
-                                CheckBomb(x2, y2 + i - shift);
+                                CheckSpecial(x2, y2 + i - shift);
                             }
                             match = true;
                         } else {
@@ -1242,14 +1251,12 @@ public class Board : MonoBehaviour {
                         // match-5 special rule
                         bool matched5 = CheckTileMatchX(x, y, true, 5) || CheckTileMatchY(x, y, true, 5);
                         if (matched5) {
-                            Debug.Log("5" + " " + x + " " + y);
                         }
 
                         // match-4 special rule
                         bool matched4 = false;
                         matched4 = !matched5 && (CheckTileMatchX(x, y, true, 4) || CheckTileMatchY(x, y, true, 4));
                         if (matched4) {
-                            Debug.Log("4" + " " + x + " " + y);
                             piece4 = PlayingPieces[x, y].Piece;
                         }
 
@@ -1296,7 +1303,7 @@ public class Board : MonoBehaviour {
                                     PlayingPieces[x, y].Match5 = false;
                                     PlayingPieces[x, y].Piece = Instantiate(masterPiece, new Vector3(currentPosition.x, currentPosition.y, zPiecePosition), Quaternion.identity) as GameObject;
                                     PlayingPieces[x, y].Piece.transform.localScale = generalScale;
-                                    PlayingPieces[x, y].Bomb = true;
+                                    PlayingPieces[x, y].Cross = true;
                                 } else if (piece4 != null && PlayingPieces[x, y].Match4) {
                                     PlayingPieces[x, y].Match4 = false;
                                     PlayingPieces[x, y].Piece = Instantiate(piecesToUseBomb[(int) PlayingPieces[x, y].Type], new Vector3(currentPosition.x, currentPosition.y, zPiecePosition), Quaternion.identity) as GameObject;
@@ -1401,7 +1408,6 @@ public class Board : MonoBehaviour {
     /// in the current game.
     /// </summary>
     private void NewPieces() {
-        int bc = 0;
         for (int x = 0; x < columns; x++) {
             for (int y = 0; y < rows; y++) {
                 if (gridDescriptor[x, y] != (int) TileType.BlockedTile && gridDescriptor[x, y] != (int) TileType.NoTile && PlayingPieces[x, y] == null) {
@@ -1410,10 +1416,6 @@ public class Board : MonoBehaviour {
                     if (totalBlockedTiles > 0 && chance == 3) {
                         PlayingPieces[x, y] = new PlayingPiece(Instantiate(specialPiece, new Vector3(v0.x, v0.y, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, PieceColour.Special);
                         PlayingPieces[x, y].SpecialPiece = true;
-                    } else if (bc == 0 && useBombs && ((Random.Range(1, 100000) % 29) == 0)) {
-                        bc++;
-                        PlayingPieces[x, y] = new PlayingPiece(Instantiate(masterPiece, new Vector3(v0.x, v0.y, zPiecePosition - Random.Range(20f, 30f)), Quaternion.identity) as GameObject, PieceColour.Bomb);
-                        PlayingPieces[x, y].Bomb = true;
                     } else {
                         bool again = false;
                         do {

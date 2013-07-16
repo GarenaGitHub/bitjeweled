@@ -142,6 +142,7 @@ internal class PlayingPiece
     internal PieceColour Type = PieceColour.Yellow;
     internal bool SpecialPiece = false;
     internal bool Bomb = false;
+    internal bool Cross = false;
     internal bool Match4 = false;
     internal bool Match5 = false;
     private bool selected = false;
