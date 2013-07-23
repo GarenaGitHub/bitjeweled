@@ -3,14 +3,17 @@ from b58 import get_rand_addr
 import datetime
 
 class Wallet(db.Model):
+    token = db.StringProperty(required=True)
     addr = db.StringProperty(required=True)
     balance = db.FloatProperty(required=True)
     
     @classmethod
     def gen_rand(cls):
-        addr = get_rand_addr()
-        return cls(addr = addr, balance = 0.0)
+        return cls(addr = get_rand_addr(), balance = 0.0, token=get_rand_addr("T"))
 
+    @classmethod
+    def get_by_token(cls, token):
+        return cls.all().filter("token =", token).get()
 
 class GameResult(db.Model):
     owner = db.ReferenceProperty(Wallet, required=True)
@@ -44,7 +47,7 @@ class PrizePool(Wallet):
     def get(cls):
         instance = cls.all().get()
         if not instance:
-            instance = cls(balance = 0.0, addr = PRIZE_POOL_ADDR)
+            instance = cls(balance = 0.0, addr = PRIZE_POOL_ADDR, token="prize-pool-"+PRIZE_POOL_ADDR)
             instance.put()
         return instance
 
@@ -54,7 +57,7 @@ class HousePool(Wallet):
     def get(cls):
         instance = cls.all().get()
         if not instance:
-            instance = cls(balance = 0.0, addr = HOUSE_ADDR)
+            instance = cls(balance = 0.0, addr = HOUSE_ADDR, token = "house-pool-"+HOUSE_ADDR)
             instance.put()
         return instance
 

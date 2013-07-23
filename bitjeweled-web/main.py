@@ -30,14 +30,14 @@ class CreateHandler(JsonAPIHandler):
     def handle(self):
         w = Wallet.gen_rand()
         w.put()
-        return {"success": True, "address": w.addr}
+        return {"success": True, "address": w.addr, "token" : w.token}
 
 class WalletActionHandler(JsonAPIHandler):
     def handle(self):
-        addr = self.request.get("a")
-        w = Wallet.all().filter("addr =", addr).get()
+        token = self.request.get("t")
+        w = Wallet.get_by_token(token)
         if not w:
-            return {"success": False, "reason": "invalid address"}
+            return {"success": False, "reason": "invalid address token"}
         return self.handle_wallet(w)
     
 class DepositHandler(WalletActionHandler):
