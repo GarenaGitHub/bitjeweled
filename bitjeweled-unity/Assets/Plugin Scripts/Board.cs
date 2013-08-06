@@ -47,11 +47,6 @@ public class Board : MonoBehaviour {
     public GamePausedDelegate GamePausedMethod;
 
     /// <summary>
-    /// The game paused method. This will be called when the <see cref="TimeOut"/> is True
-    /// </summary>
-    public LevelClearedDelegate LevelClearedMethod;
-
-    /// <summary>
     /// The timed out method.
     /// </summary>
     public TimedOutDelegate TimedOutMethod;
@@ -100,7 +95,7 @@ public class Board : MonoBehaviour {
     /// <summary>
     /// Time (in minutes) to finish the level.
     /// </summary>
-    public static float LevelTime = 2f;
+    public static float LevelTime = 60f;
 
 
     /// <summary>
@@ -225,9 +220,9 @@ public class Board : MonoBehaviour {
     public UISlider timeBarSlider;
 
     /// <summary>
-    /// Time (in minutes) to finish the level.
+    /// Time (in seconds) to finish the level.
     /// </summary>
-    public float levelTime = 2f;
+    public float levelTime2 = 60f;
 
     /// <summary>
     /// Time (in seconds) since last move before to show a hint.
@@ -615,7 +610,7 @@ public class Board : MonoBehaviour {
             boardNumber = BoardNumber;
             columns = Columns;
             rows = Rows;
-            levelTime = LevelTime;
+            levelTime2 = LevelTime;
         }
 
         TextAsset TXTFile = (TextAsset) Resources.Load(STR_DataBoard + boardNumber.ToString() + STR_dot + rows.ToString() + STR_dot + columns.ToString());
@@ -1117,8 +1112,9 @@ public class Board : MonoBehaviour {
         if (TimeOut && TimedOutMethod != null)
             TimedOutMethod();
         // if the level has been cleared call the delegate
-        if (CleanSlate && LevelClearedMethod != null)
-            LevelClearedMethod();
+        if (CleanSlate) {
+
+        }
         // Don't continue if the game is ended or paused
         if (TimeOut || CleanSlate || GamePaused)
             return;
@@ -1161,7 +1157,7 @@ public class Board : MonoBehaviour {
         checkTimer += Time.deltaTime;
 
         // Scale the time for use in the user interface
-        float remainingTimeScaled = ((levelTime * 60f) - gameTimer) / (levelTime * 60f);
+        float remainingTimeScaled = ((levelTime2) - gameTimer) / (levelTime2);
         // Display the remaining time
         timeBarSlider.sliderValue = remainingTimeScaled;
 

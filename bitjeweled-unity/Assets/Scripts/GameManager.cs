@@ -31,7 +31,6 @@ public class GameManager : MonoBehaviour {
 
 		// Let's set the delegates
 		Board.Instance.CheckBonusMethod = CheckBonus;
-		Board.Instance.LevelClearedMethod = LevelCleared;
 		Board.Instance.TimedOutMethod = TimeOut;
 		
 		// Now we start the board itself
@@ -69,6 +68,9 @@ public class GameManager : MonoBehaviour {
 	void TimeOut()
 	{
 		Time.timeScale = 0f;
+        ApiManager api = FindObjectOfType(typeof(ApiManager)) as ApiManager;
+        api.OnFinishedGame(ScoresManager.CurrentPoints);
+        Debug.Log("calling finished game");
 		gameOverPanel.Play(true);
 	}
 	
@@ -85,8 +87,6 @@ public class GameManager : MonoBehaviour {
 			Board.Instance.StartBoard();
 		} else {
 			// well... getting here means that the player has beaten the game
-			// so we should do some fireworks praising him :) As this is not
-			// for real... we just go to the main menu :)
 			Application.LoadLevel("menu");
 		}
 	}
