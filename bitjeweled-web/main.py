@@ -30,14 +30,14 @@ class CreateHandler(JsonAPIHandler):
     def handle(self):
         w = Wallet.gen_rand()
         w.put()
-        return {"success": True, "address": w.addr, "token" : w.token}
+        return {"success": True, "addr": w.addr, "token" : w.token}
 
 class WalletActionHandler(JsonAPIHandler):
     def handle(self):
         token = self.request.get("t")
         w = Wallet.get_by_token(token)
         if not w:
-            return {"success": False, "reason": "invalid address token"}
+            return {"success": False, "reason": "invalid address token "+str(token)}
         return self.handle_wallet(w)
     
 class DepositHandler(WalletActionHandler):
@@ -68,9 +68,9 @@ class ScoreSubmitHandler(JsonAPIHandler):
         
         gr = GameResult.get_by_token(token)
         if not gr:
-            return {"success": False}
+            return {"success": False, "reason": "invalid token"}
         if gr.score != 0:
-            return {"success": False}
+            return {"success": False, "reason" : "score already submitted"}
         gr.score = score
         gr.put()
         return {"success": True}
@@ -121,6 +121,8 @@ class DistributeHandler(JsonAPIHandler):
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
+    
+    # API
     ('/api/create', CreateHandler),
     ('/api/deposit', DepositHandler),
     ('/api/play', PlayHandler),
