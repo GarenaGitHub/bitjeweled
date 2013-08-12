@@ -11,13 +11,16 @@ public class ApiManager : MonoBehaviour {
     private const string SCORE_COMMAND = "score";
     private const string TOP_COMMAND = "top";
 
-    private static string baseUrl = "https://bitjewled-backend.appspot.com/api/";
+    private static string DEPLOY_URL = "bitjewled-backend.appspot.com";
+    private static string DEVELOPMENT_URL = "localhost:8080";
+    private static string baseUrl = "http://" + DEVELOPMENT_URL + "/api/";
 
     private string addr = "";
     private string token = "";
     private double balance = -1.0;
     private bool waitingForPlay = false;
     private bool playing = false;
+    private bool submittingScore = false;
     private string game_token = "";
 
     void Start() {
@@ -105,7 +108,7 @@ public class ApiManager : MonoBehaviour {
         StartCoroutine(MakeRequest(PLAY_COMMAND, "t=" + token));
     }
     private void RequestScore(int score) {
-        StartCoroutine(MakeRequest(SCORE_COMMAND, "t=" + game_token+"&s="+score));
+        StartCoroutine(MakeRequest(SCORE_COMMAND, "t=" + game_token + "&s=" + score));
     }
 
     private IEnumerator MakeRequest(string command, string parameters) {
@@ -149,6 +152,7 @@ public class ApiManager : MonoBehaviour {
                 break;
             case SCORE_COMMAND:
                 playing = false;
+                submittingScore = false;
                 Application.LoadLevel(0);
                 break;
             default:
@@ -158,7 +162,10 @@ public class ApiManager : MonoBehaviour {
     }
 
     internal void OnFinishedGame(int score) {
-        RequestScore(score);
+        if (!submittingScore) {
+            submittingScore = true;
+            RequestScore(score);
+        }
     }
 
     void OnLevelWasLoaded(int index) {

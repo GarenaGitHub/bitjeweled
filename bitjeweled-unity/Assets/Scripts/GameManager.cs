@@ -70,7 +70,6 @@ public class GameManager : MonoBehaviour {
 		Time.timeScale = 0f;
         ApiManager api = FindObjectOfType(typeof(ApiManager)) as ApiManager;
         api.OnFinishedGame(ScoresManager.CurrentPoints);
-        Debug.Log("calling finished game");
 		gameOverPanel.Play(true);
 	}
 	
