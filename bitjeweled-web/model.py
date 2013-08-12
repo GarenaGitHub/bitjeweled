@@ -28,7 +28,7 @@ class GameResult(db.Model):
     @classmethod
     def get_top(cls, n, from_date = None):
         if not from_date:
-            week = datetime.timedelta(hours=1)
+            week = datetime.timedelta(weeks=1)
             from_date = datetime.datetime.now() - week
         recent = list(cls.all().filter("timestamp >", from_date).run())
         recent = sorted(recent,  key=lambda gr: gr.score, reverse=True)

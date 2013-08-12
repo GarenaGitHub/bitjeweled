@@ -1,8 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ApiManager : MonoBehaviour {
 
+    public int topScoresN = 5;
 
     private const string CREATE_COMMAND = "create";
     private const string BALANCE_COMMAND = "balance";
@@ -13,7 +15,7 @@ public class ApiManager : MonoBehaviour {
 
     private static string DEPLOY_URL = "bitjewled-backend.appspot.com";
     private static string DEVELOPMENT_URL = "localhost:8080";
-    private static string baseUrl = "http://" + DEVELOPMENT_URL + "/api/";
+    private static string baseUrl = "http://" + DEPLOY_URL + "/api/";
 
     private string addr = "";
     private string token = "";
@@ -22,14 +24,17 @@ public class ApiManager : MonoBehaviour {
     private bool playing = false;
     private bool submittingScore = false;
     private string game_token = "";
+    private List<string> scores;
 
     void Start() {
         DontDestroyOnLoad(gameObject);
         addr = PlayerPrefs.GetString("addr", "");
         token = PlayerPrefs.GetString("token", "");
+        scores = new List<string>(5);
         if (HasAccount()) {
             RequestBalance();
         }
+        RequestTop(topScoresN);
     }
 
     void Update() {
@@ -51,6 +56,7 @@ public class ApiManager : MonoBehaviour {
                 GUILayout.Label("Your balance: " + (balance < 0 ? "..." : "" + balance));
                 if (GUILayout.Button("Update balance")) {
                     RequestBalance();
+                    RequestTop(topScoresN);
                 }
 
                 // development
@@ -70,7 +76,7 @@ public class ApiManager : MonoBehaviour {
             GUILayout.Space(100);
 
 
-            GUILayout.Space(100);
+            GUILayout.Space(0);
             GUILayout.BeginVertical();
             GUILayout.Space(100);
             if (HasAccount()) {
@@ -82,6 +88,12 @@ public class ApiManager : MonoBehaviour {
                 }
             }
             GUILayout.Space(100);
+            GUILayout.Label("Top players:");
+            foreach (string score in scores) {
+                GUILayout.Label(score);
+                GUILayout.Space(12);
+            }
+            
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
@@ -109,6 +121,10 @@ public class ApiManager : MonoBehaviour {
     }
     private void RequestScore(int score) {
         StartCoroutine(MakeRequest(SCORE_COMMAND, "t=" + game_token + "&s=" + score));
+    }
+
+    private void RequestTop(int n) {
+        StartCoroutine(MakeRequest(TOP_COMMAND, "n=" + n));
     }
 
     private IEnumerator MakeRequest(string command, string parameters) {
@@ -155,6 +171,13 @@ public class ApiManager : MonoBehaviour {
                 submittingScore = false;
                 Application.LoadLevel(0);
                 break;
+            case TOP_COMMAND:
+                scores.Clear();
+                foreach (JSONValue i in json.GetArray("top")) {
+                    JSONObject io = i.Obj;
+                    scores.Add(io.GetNumber("score") + "\t" + io.GetString("addr"));
+                }
+                break;
             default:
                 break;
         }
@@ -168,13 +191,13 @@ public class ApiManager : MonoBehaviour {
         }
     }
 
-    void OnLevelWasLoaded(int index) {
+    void OnLevelWasLoaded(int level) {
         RequestBalance();
+        RequestTop(topScoresN);
     }
 
     private void OnFail(string command, JSONObject json) {
         Debug.Log(command + " failed: " + json);
-
     }
 
 }
