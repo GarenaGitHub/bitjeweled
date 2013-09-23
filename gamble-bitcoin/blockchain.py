@@ -49,7 +49,7 @@ def new_address():
         return None
 
 def address_balance(addr):
-    url = "https://blockchain.info/address/%s?format=json&limit=0" % addr
+    url = BASE_COINBASE_URL+"/address/%s?format=json&limit=0" % addr
     result = urlfetch.fetch(url)
     if result.status_code == 200:
         return json.loads(result.content)["final_balance"]
@@ -83,5 +83,23 @@ def sendmany(_from, recipient_list):
         logging.error('There was an error contacting the Blockchain.info API')
         return None
 
+def get_tx(tx_hash):
+    url = BASE_COINBASE_URL+"/rawtx/%s" % (tx_hash)
+    result = urlfetch.fetch(url)
+    if result.status_code == 200:
+        return json.loads(result.content)
+    else:
+        logging.error('There was an error contacting the Blockchain.info API')
+        return None
+def get_block(height):
+    if not height:
+        return None
+    url = BASE_COINBASE_URL+"/block-height/%s?format=json" % (height)
+    result = urlfetch.fetch(url)
+    if result.status_code == 200:
+        return json.loads(result.content).get("blocks")[0]
+    else:
+        logging.error('There was an error contacting the Blockchain.info API')
+        return None
 def callback_secret_valid(secret):
     return secret == CALLBACK_SECRET
