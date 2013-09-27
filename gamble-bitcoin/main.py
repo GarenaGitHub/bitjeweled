@@ -4,11 +4,11 @@
 import webapp2, json, jinja2, os
 from model import Wallet
 from blockchain import callback_secret_valid, get_tx, get_block, payment
+from quopri import HEX
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-{"addr_tag":"SatoshiDICE 18%","n":0,"value":20000000,"addr":"1dice7EYzJag7SxkdKXLr8Jn14WUb3Cf1","tx_index":90827863,"type":0,"addr_tag_link":"http:\/\/satoshidice.com"}
 
 MINOR_ADDRESS = "1Fdz9kvAAurZYVE5ZchHo2iR2k8xc7BD7D"
 MAJOR_ADDRESS = "15vaMvzo467iVGLUTEAq28B13QoNhkVa1B"
@@ -18,16 +18,21 @@ HOUSE_ADDRESS = "1FkYYQBStF5z9Hv3JQ5p2ruHRembeqSokE"
 
 BET_ADDRESSES = [MINOR_ADDRESS, MAJOR_ADDRESS, HEX_ADDRESS]
 
+FULL_ALPHABET = "0123456789abcdef"
+HOUSE_EDGE = 1.85/100.0
 ADDRESS_WINNERS = {
     MINOR_ADDRESS: '01234',
     MAJOR_ADDRESS: '56789',
     HEX_ADDRESS:   'abcdef'
 }
 
+def calculate_payout(address):
+    return  len(FULL_ALPHABET)/float(len(ADDRESS_WINNERS[address])) *(1- HOUSE_EDGE)
+
 ADDRESS_PAYOUT =  {
-    MINOR_ADDRESS: 3.0,
-    MAJOR_ADDRESS: 3.0,
-    HEX_ADDRESS:   3.0
+    MINOR_ADDRESS: calculate_payout(MINOR_ADDRESS),
+    MAJOR_ADDRESS: calculate_payout(MAJOR_ADDRESS),
+    HEX_ADDRESS:   calculate_payout(HEX_ADDRESS)
 }
 
 class MainHandler(webapp2.RequestHandler):
@@ -49,31 +54,31 @@ class BootstrapHandler(JsonAPIHandler):
 
 
 class CallbackHandler(JsonAPIHandler):
-    
-    def do_pay(self, pay_addr, payment_value):
-        return payment(pay_addr, payment_value, HOUSE_ADDRESS)
-        
+
     def process_bet(self, tx_hash):
         tx = get_tx(tx_hash)
-        pay_addr = tx.get("prev_out")[0].get("addr")
+        pay_addr = tx.get("inputs")[0].get("prev_out").get("addr")
         outs = tx.get("out") or []
         block_height = tx.get("block_height")
         block = get_block(block_height)
         if not block:
-            return None
+            return "block not found"
         block_hash = block.get("hash") or ""
         lucky_digit = block_hash[-1]
         
         for out in outs:
             addr = out.get("addr") or ""
             bet_value = out.get("value") or 1
+            print addr, bet_value, lucky_digit
             if addr in BET_ADDRESSES:
                 win = lucky_digit in ADDRESS_WINNERS[addr]
                 if win:
                     payment_value = bet_value*ADDRESS_PAYOUT(addr)
-                    result = self.do_pay(pay_addr, payment_value)
+                    result = payment(pay_addr, payment_value, HOUSE_ADDRESS)
                     if not result:
-                        return None
+                        return "payment failed"
+        print "Done"
+        return True
                 
     
     def handle(self):
@@ -82,22 +87,21 @@ class CallbackHandler(JsonAPIHandler):
             return "error: secret"
         test = self.request.get("test") == "true"
         try:
-            value = long(self.request.get("value"))
             confirmations = int(self.request.get("confirmations"))
             tx = self.request.get("transaction_hash")
         except ValueError, e:
             return "error: value error"
         
-        if value < 0 or not tx:
-            return "*ok*"
+        if not tx:
+            return "error: no transaction_hash"
         
         if confirmations < 1:
             return "error: unconfirmed"
         
         if not test:
             result = self.process_bet(tx)
-            if not result:
-                return "error: process"
+            if result is not True:
+                return "error: process "+result
         return "*ok*"
 
 app = webapp2.WSGIApplication([
