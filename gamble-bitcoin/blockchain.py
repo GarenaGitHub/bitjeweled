@@ -15,7 +15,7 @@ BLOCKCHAIN_PASSWORD = ""
 CALLBACK_SECRET = ""
 
                                                                      
-
+                                             
 # debugging
 class Mock():
     status_code = 500
@@ -42,7 +42,6 @@ def new_address():
     result = urlfetch.fetch(url)
     if result.status_code == 200:
         j = json.loads(result.content)
-        print j
         return j["address"]
     else:
         logging.error('There was an error contacting the Blockchain.info API')
@@ -59,7 +58,7 @@ def address_balance(addr):
 
 def payment(to, satoshis, _from):
     url = get_base_blockchain_url("payment")
-    url += "&to=%s&amount=%s&from=%s&shared=%s&fee=%s" % (to, satoshis, _from, "false", TX_FEES)
+    url += "&to=%s&amount=%s&from=%s&shared=%s&fee=%s" % (to, int(satoshis), _from, "false", TX_FEES)
     result = urlfetch.fetch(url)
     if result.status_code == 200:
         return json.loads(result.content).get("tx_hash")

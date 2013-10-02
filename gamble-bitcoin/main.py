@@ -4,7 +4,6 @@
 import webapp2, json, jinja2, os
 from model import Wallet
 from blockchain import callback_secret_valid, get_tx, get_block, payment
-from quopri import HEX
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
@@ -37,7 +36,8 @@ ADDRESS_PAYOUT =  {
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write("It works!")
+        for k,v in ADDRESS_WINNERS.items():
+          self.response.out.write("%s -> %s (x%s payout)<br />" % (k,v, ADDRESS_PAYOUT[k]))
         # template = jinja_environment.get_template('index.html')
         # self.response.out.write(template.render({}))
 
@@ -59,8 +59,7 @@ class CallbackHandler(JsonAPIHandler):
         tx = get_tx(tx_hash)
         pay_addr = tx.get("inputs")[0].get("prev_out").get("addr")
         outs = tx.get("out") or []
-        block_height = tx.get("block_height")
-        block = get_block(block_height)
+        block = get_block(tx.get("block_height"))
         if not block:
             return "block not found"
         block_hash = block.get("hash") or ""
@@ -69,15 +68,12 @@ class CallbackHandler(JsonAPIHandler):
         for out in outs:
             addr = out.get("addr") or ""
             bet_value = out.get("value") or 1
-            print addr, bet_value, lucky_digit
             if addr in BET_ADDRESSES:
-                win = lucky_digit in ADDRESS_WINNERS[addr]
-                if win:
-                    payment_value = bet_value*ADDRESS_PAYOUT(addr)
+                if lucky_digit in ADDRESS_WINNERS[addr]:
+                    payment_value = bet_value*ADDRESS_PAYOUT[addr]
                     result = payment(pay_addr, payment_value, HOUSE_ADDRESS)
                     if not result:
                         return "payment failed"
-        print "Done"
         return True
                 
     
@@ -101,7 +97,7 @@ class CallbackHandler(JsonAPIHandler):
         if not test:
             result = self.process_bet(tx)
             if result is not True:
-                return "error: process "+result
+                return "error: process: "+result
         return "*ok*"
 
 app = webapp2.WSGIApplication([
