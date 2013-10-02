@@ -53,7 +53,10 @@ class BootstrapHandler(JsonAPIHandler):
         return {"success":True}
 
 
-class CallbackHandler(JsonAPIHandler):
+class CallbackHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        self.response.out.write(self.handle())
 
     def process_bet(self, tx_hash):
         tx = get_tx(tx_hash)
