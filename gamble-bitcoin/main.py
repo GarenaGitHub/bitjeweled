@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 
-import webapp2, json, jinja2, os
-from model import Wallet
+import webapp2, json, jinja2, os, logging
+from model import Bet
 from blockchain import callback_secret_valid, get_tx, get_block, payment
 
 jinja_environment = jinja2.Environment(
@@ -37,7 +37,7 @@ ADDRESS_PAYOUT =  {
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         for k,v in ADDRESS_WINNERS.items():
-          self.response.out.write("%s -> %s (x%s payout)<br />" % (k,v, ADDRESS_PAYOUT[k]))
+            self.response.out.write("%s -> %s (x%s payout)<br />" % (k,v, ADDRESS_PAYOUT[k]))
         # template = jinja_environment.get_template('index.html')
         # self.response.out.write(template.render({}))
 
@@ -58,18 +58,25 @@ class CallbackHandler(webapp2.RequestHandler):
     def get(self):
         self.response.out.write(self.handle())
 
-    def process_bet(self, tx_hash):
-        tx = get_tx(tx_hash)
-        pay_addr = tx.get("inputs")[0].get("prev_out").get("addr")
-        outs = tx.get("out") or []
+    def get_pay_addr(self, tx):
+        return tx.get("inputs")[0].get("prev_out").get("addr")
+    
+    def process_bet(self, tx, receiving_address):
+        pay_addr = self.get_pay_addr(tx)
+        outs = tx.get("out")
+        if not outs:
+            return "unable to retrieve tx outs."
+            
         block = get_block(tx.get("block_height"))
         if not block:
             return "block not found"
-        block_hash = block.get("hash") or ""
+        block_hash = block.get("hash") or "-"
         lucky_digit = block_hash[-1]
         
         for out in outs:
             addr = out.get("addr") or ""
+            if addr != receiving_address:
+                continue
             bet_value = out.get("value") or 1
             if addr in BET_ADDRESSES:
                 if lucky_digit in ADDRESS_WINNERS[addr]:
@@ -87,20 +94,35 @@ class CallbackHandler(webapp2.RequestHandler):
         test = self.request.get("test") == "true"
         try:
             confirmations = int(self.request.get("confirmations"))
-            tx = self.request.get("transaction_hash")
+            tx_hash = self.request.get("transaction_hash")
+            address = self.request.get("address")
         except ValueError, e:
             return "error: value error"
         
-        if not tx:
+        if not tx_hash:
             return "error: no transaction_hash"
         
+        if not address:
+            return "error: no address"
+        
+        if address not in BET_ADDRESSES:
+            return "*ok*"
+        
+        if confirmations == 0:
+            pass
+            #bet = Bet.new(better=input_address, betting_addr=input_address, bet_tx, amount)
+        
         if confirmations < 1:
-            return "error: unconfirmed"
+            return "error: unconfirmed."
         
         if not test:
-            result = self.process_bet(tx)
+            tx = get_tx(tx_hash)
+            if not tx:
+                return "error: unable to retrieve tx."
+            result = self.process_bet(tx, address)
             if result is not True:
                 return "error: process: "+result
+        
         return "*ok*"
 
 app = webapp2.WSGIApplication([
