@@ -68,6 +68,13 @@ class JsonAPIHandler(webapp2.RequestHandler):
 class BootstrapHandler(JsonAPIHandler):
     def handle(self):
         return {"success":True}
+    
+class BettingAddressesHandler(JsonAPIHandler):
+    def handle(self):
+        return [{"addr":addr,
+                 "payout": ADDRESS_PAYOUT[addr],
+                 "winners": ADDRESS_WINNERS[addr]
+                 } for addr in ADDRESS_PAYOUT]
 
 
 class CallbackHandler(webapp2.RequestHandler):
@@ -145,6 +152,11 @@ class CallbackHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/((?!api).)*', StaticHandler),
     # API
+    
+    # frontend
+    ('/api/betting_addresses', BettingAddressesHandler),
+    
+    # backend
     ('/api/bootstrap', BootstrapHandler),
     ('/api/callback', CallbackHandler),
 ], debug=True)
