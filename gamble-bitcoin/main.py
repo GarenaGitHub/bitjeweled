@@ -2,7 +2,7 @@
 
 
 import webapp2, json, jinja2, os, logging
-from model import Bet
+from model import Bet, PENDING, LOSS, WIN
 from blockchain import callback_secret_valid, get_tx, get_block, payment
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -76,14 +76,20 @@ class BettingAddressesHandler(JsonAPIHandler):
         return [{"addr":addr,
                  "payout": ADDRESS_PAYOUT[addr],
                  "winners": ADDRESS_WINNERS[addr],
-                 "odds": 1/calculate_odds(addr)
+                 "odds": 1 / calculate_odds(addr)
                  } for addr in ADDRESS_PAYOUT]
 
 
 class CallbackHandler(webapp2.RequestHandler):
+    tx = None
     
     def get(self):
         self.response.out.write(self.handle())
+
+    def get_tx(self, tx_hash):
+        if not self.tx:
+            self.tx = get_tx(tx_hash)
+        return self.tx
 
     def get_pay_addr(self, tx):
         return tx.get("inputs")[0].get("prev_out").get("addr")
@@ -123,32 +129,48 @@ class CallbackHandler(webapp2.RequestHandler):
             confirmations = int(self.request.get("confirmations"))
             tx_hash = self.request.get("transaction_hash")
             address = self.request.get("address")
+            value = int(self.request.get("value"))
         except ValueError, e:
             return "error: value error"
         
         if not tx_hash:
             return "error: no transaction_hash"
-        
+    
         if not address:
             return "error: no address"
         
-        if address not in BET_ADDRESSES:
+        if value <= 0:  # outgoing payment
+            return "*ok*"
+        
+        if address not in BET_ADDRESSES:  # not a gamble transaction
             return "*ok*"
         
         if confirmations == 0:
-            pass
-            # bet = Bet.new(better=input_address, betting_addr=input_address, bet_tx, amount)
+            tx = self.get_tx(tx_hash)
+            better = self.get_pay_addr(tx)
+            if not tx:
+                return "error: unable to retrieve tx."
+            bet = Bet.new(better=better, betting_addr=address, bet_tx=tx_hash, amount=value)
+            bet.put()
         
         if confirmations < 1:
             return "error: unconfirmed."
         
         if not test:
-            tx = get_tx(tx_hash)
+            tx = self.get_tx(tx_hash)
             if not tx:
                 return "error: unable to retrieve tx."
             result = self.process_bet(tx, address)
             if result is not True:
                 return "error: process: " + result
+            bet = Bet.get(tx_hash, address)
+            if not bet:
+                better = self.get_pay_addr(tx)
+                bet = Bet.new(better, address, tx_hash, value)
+            bet.result = WIN
+            bet.bet_block = "ASdasdsdasdasd001ffcc"
+            bet.pay_tx = "a110011c010afbca01"
+            bet.put()
         
         return "*ok*"
 
