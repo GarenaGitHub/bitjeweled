@@ -26,8 +26,10 @@ ADDRESS_WINNERS = {
     HEX_ADDRESS:   'abcdef'
 }
 
+def calculate_odds(address):
+    return len(FULL_ALPHABET) / float(len(ADDRESS_WINNERS[address]))
 def calculate_payout(address):
-    return  len(FULL_ALPHABET) / float(len(ADDRESS_WINNERS[address])) * (1 - HOUSE_EDGE)
+    return calculate_odds(address) * (1 - HOUSE_EDGE)
 
 ADDRESS_PAYOUT = {
     MINOR_ADDRESS: calculate_payout(MINOR_ADDRESS),
@@ -73,7 +75,8 @@ class BettingAddressesHandler(JsonAPIHandler):
     def handle(self):
         return [{"addr":addr,
                  "payout": ADDRESS_PAYOUT[addr],
-                 "winners": ADDRESS_WINNERS[addr]
+                 "winners": ADDRESS_WINNERS[addr],
+                 "odds": 1/calculate_odds(addr)
                  } for addr in ADDRESS_PAYOUT]
 
 
