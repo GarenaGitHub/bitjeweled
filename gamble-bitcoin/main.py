@@ -5,8 +5,9 @@ import webapp2, json, jinja2, os, logging
 from model import Bet
 from blockchain import callback_secret_valid, get_tx, get_block, payment
 
-jinja_environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'])
 
 
 MINOR_ADDRESS = "1Fdz9kvAAurZYVE5ZchHo2iR2k8xc7BD7D"
@@ -18,7 +19,7 @@ HOUSE_ADDRESS = "1FkYYQBStF5z9Hv3JQ5p2ruHRembeqSokE"
 BET_ADDRESSES = [MINOR_ADDRESS, MAJOR_ADDRESS, HEX_ADDRESS]
 
 FULL_ALPHABET = "0123456789abcdef"
-HOUSE_EDGE = 1.85/100.0
+HOUSE_EDGE = 1.85 / 100.0
 ADDRESS_WINNERS = {
     MINOR_ADDRESS: '01234',
     MAJOR_ADDRESS: '56789',
@@ -26,18 +27,34 @@ ADDRESS_WINNERS = {
 }
 
 def calculate_payout(address):
-    return  len(FULL_ALPHABET)/float(len(ADDRESS_WINNERS[address])) *(1- HOUSE_EDGE)
+    return  len(FULL_ALPHABET) / float(len(ADDRESS_WINNERS[address])) * (1 - HOUSE_EDGE)
 
-ADDRESS_PAYOUT =  {
+ADDRESS_PAYOUT = {
     MINOR_ADDRESS: calculate_payout(MINOR_ADDRESS),
     MAJOR_ADDRESS: calculate_payout(MAJOR_ADDRESS),
     HEX_ADDRESS:   calculate_payout(HEX_ADDRESS)
 }
 
+class StaticHandler(webapp2.RequestHandler):
+    def get(self, _):
+        name = self.request.path.split("/")[1]
+        if name == "":
+            name = "index"
+            
+        values = {
+            "name": name
+        }
+        
+        try:
+            self.response.write(JINJA_ENVIRONMENT.get_template("/templates/" + name + '.html').render(values))
+        except IOError, e:
+            self.error(404)
+            self.response.write("404: %s not found! %s" % (name, e))
+
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        for k,v in ADDRESS_WINNERS.items():
-            self.response.out.write("%s -> %s (x%s payout)<br />" % (k,v, ADDRESS_PAYOUT[k]))
+        for k, v in ADDRESS_WINNERS.items():
+            self.response.out.write("%s -> %s (x%s payout)<br />" % (k, v, ADDRESS_PAYOUT[k]))
         # template = jinja_environment.get_template('index.html')
         # self.response.out.write(template.render({}))
 
@@ -80,7 +97,7 @@ class CallbackHandler(webapp2.RequestHandler):
             bet_value = out.get("value") or 1
             if addr in BET_ADDRESSES:
                 if lucky_digit in ADDRESS_WINNERS[addr]:
-                    payment_value = bet_value*ADDRESS_PAYOUT[addr]
+                    payment_value = bet_value * ADDRESS_PAYOUT[addr]
                     result = payment(pay_addr, payment_value, HOUSE_ADDRESS)
                     if not result:
                         return "payment failed"
@@ -110,7 +127,7 @@ class CallbackHandler(webapp2.RequestHandler):
         
         if confirmations == 0:
             pass
-            #bet = Bet.new(better=input_address, betting_addr=input_address, bet_tx, amount)
+            # bet = Bet.new(better=input_address, betting_addr=input_address, bet_tx, amount)
         
         if confirmations < 1:
             return "error: unconfirmed."
@@ -121,12 +138,12 @@ class CallbackHandler(webapp2.RequestHandler):
                 return "error: unable to retrieve tx."
             result = self.process_bet(tx, address)
             if result is not True:
-                return "error: process: "+result
+                return "error: process: " + result
         
         return "*ok*"
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler),
+    ('/((?!api).)*', StaticHandler),
     # API
     ('/api/bootstrap', BootstrapHandler),
     ('/api/callback', CallbackHandler),
