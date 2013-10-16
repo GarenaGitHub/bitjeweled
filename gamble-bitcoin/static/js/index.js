@@ -4,7 +4,6 @@ $(document).ready(
 			$.getJSON("/api/betting_addresses", function(data) {
 				betting_addresses.html('');
 				for ( var i in data) {
-					alert(data[i]);
 					var ba = jQuery('<div/>', {
 						text : data[i].winners + " " + data[i].addr + " ("
 								+ data[i].odds * 100
