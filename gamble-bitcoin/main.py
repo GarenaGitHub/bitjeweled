@@ -82,6 +82,9 @@ class BettingAddressesHandler(JsonAPIHandler):
 
 class CallbackHandler(webapp2.RequestHandler):
     tx = None
+    block_hash = None
+    bet_result = None
+    pay_tx = None
     
     def get(self):
         self.response.out.write(self.handle())
@@ -110,13 +113,20 @@ class CallbackHandler(webapp2.RequestHandler):
             addr = out.get("addr") or ""
             if addr != receiving_address:
                 continue
+            self.block_hash = block_hash
             bet_value = out.get("value") or 1
             if addr in BET_ADDRESSES:
                 if lucky_digit in ADDRESS_WINNERS[addr]:
+                    self.bet_result = WIN
                     payment_value = bet_value * ADDRESS_PAYOUT[addr]
                     result = payment(pay_addr, payment_value, HOUSE_ADDRESS)
                     if not result:
                         return "payment failed"
+                    else:
+                        self.pay_tx = result
+                else:
+                    self.bet_result = LOSS
+                    
         return True
                 
     
@@ -167,9 +177,9 @@ class CallbackHandler(webapp2.RequestHandler):
             if not bet:
                 better = self.get_pay_addr(tx)
                 bet = Bet.new(better, address, tx_hash, value)
-            bet.result = WIN
-            bet.bet_block = "ASdasdsdasdasd001ffcc"
-            bet.pay_tx = "a110011c010afbca01"
+            bet.result = self.bet_result
+            bet.bet_block = self.block_hash
+            bet.pay_tx = self.pay_tx
             bet.put()
         
         return "*ok*"
