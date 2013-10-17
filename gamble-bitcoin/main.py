@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-import webapp2, json, jinja2, os, logging
+import webapp2, json, jinja2, os, logging, datetime
 from model import Bet, PENDING, LOSS, WIN
 from blockchain import callback_secret_valid, get_tx, get_block, payment
 
@@ -53,22 +53,18 @@ class StaticHandler(webapp2.RequestHandler):
             self.error(404)
             self.response.write("404: %s not found! %s" % (name, e))
 
-class MainHandler(webapp2.RequestHandler):
-    def get(self):
-        for k, v in ADDRESS_WINNERS.items():
-            self.response.out.write("%s -> %s (x%s payout)<br />" % (k, v, ADDRESS_PAYOUT[k]))
-        # template = jinja_environment.get_template('index.html')
-        # self.response.out.write(template.render({}))
-
 class JsonAPIHandler(webapp2.RequestHandler):
     def post(self):
         self.get()
     def get(self):
         resp = self.handle()
-        self.response.write(json.dumps(resp))
+        self.response.headers['Content-Type'] = "application/json"
+        dthandler = lambda obj: obj.strftime("%Y-%m-%d %H:%M:%S") if isinstance(obj, datetime.datetime) else None
+        self.response.write(json.dumps(resp, default=dthandler))
 
 class BootstrapHandler(JsonAPIHandler):
     def handle(self):
+        Bet.new("new", "312", "0abfc1746923", 1000).put()
         return {"success":True}
     
 class BettingAddressesHandler(JsonAPIHandler):
@@ -79,6 +75,9 @@ class BettingAddressesHandler(JsonAPIHandler):
                  "odds": 1 / calculate_odds(addr)
                  } for addr in ADDRESS_PAYOUT]
 
+class BetListHandler(JsonAPIHandler):
+    def handle(self):
+        return {"success": True, "list": [bet.to_dict() for bet in Bet.get_latest()]}
 
 class CallbackHandler(webapp2.RequestHandler):
     tx = None
@@ -190,6 +189,7 @@ app = webapp2.WSGIApplication([
     
     # frontend
     ('/api/betting_addresses', BettingAddressesHandler),
+    ('/api/bets/list', BetListHandler),
     
     # backend
     ('/api/bootstrap', BootstrapHandler),

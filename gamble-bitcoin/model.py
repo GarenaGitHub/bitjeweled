@@ -16,6 +16,9 @@ class Bet(db.Model):
     bet_block = db.StringProperty()
     pay_tx = db.StringProperty()
     
+    
+    def to_dict(self):
+        return db.to_dict(self)
 
     @classmethod 
     def new(cls, better, betting_addr, bet_tx, amount):
@@ -25,6 +28,9 @@ class Bet(db.Model):
     def get(cls, bet_tx, betting_addr):
         return cls.all().filter("bet_tx = ", bet_tx).filter("betting_addr = ", betting_addr).get()
 
+    @classmethod
+    def get_latest(cls):
+        return cls.all().order('-timestamp').run(limit=10)
     
     
 
