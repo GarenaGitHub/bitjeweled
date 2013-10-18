@@ -13,8 +13,6 @@ B2S = 100000000
 BLOCKCHAIN_WALLET_GUID = ""
 BLOCKCHAIN_PASSWORD = ""
 CALLBACK_SECRET = ""
-
-                                                          
                                              
 
 # debugging
