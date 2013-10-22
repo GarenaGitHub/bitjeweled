@@ -32,8 +32,8 @@ $(document).ready(function() {
 					"<tr> " +
 					"<td>"+p.betting_addr+"</td> " +
 					"<td><a href='https://blockchain.info/tx/"+p.bet_tx+"'>"+p.bet_tx+"</a></td> " +
-					"<td><a href='/api/bets/get?timestamp="+p.timestamp+"'>"+p.timestamp_str+"</a></td> " +
-					"<td>"+p.better+"</td> " +
+					"<td><a href='/detail/"+p.timestamp+"'>"+p.timestamp_str+"</a></td> " +
+					"<td><a href='https://blockchain.info/address/"+p.better+"'>"+p.better+"</a></td> " +
 					"<td>"+p.amount+"</td> " +
 					"<td>"+p.result+"</td> " +
 					"<td>"+p.bet_block+"</td> " +
