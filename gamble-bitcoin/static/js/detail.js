@@ -4,8 +4,13 @@ $(document).ready(function() {
 	var bet = $("#bet");
 	$.get('/api/bets/get?timestamp='+timestamp, function(data) {
 		if (data.success == true) {
-			bet.html(JSON.stringify(data.bet));
-			
+			var s = "";
+			for (var property in data.bet) {
+			    if (data.bet.hasOwnProperty(property)) {
+			        s += property + ": " + data.bet[property] + "<br />";
+			    }
+			}
+			bet.html(s);
 		}
 	}, "json");
 });
