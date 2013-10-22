@@ -16,7 +16,6 @@ CALLBACK_SECRET = ""
 
                                                                      
                                              
-                                             
 
 # debugging
 class Mock():
