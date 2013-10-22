@@ -79,6 +79,19 @@ class BetListHandler(JsonAPIHandler):
     def handle(self):
         return {"success": True, "list": [bet.to_dict() for bet in Bet.get_latest()]}
 
+class BetInfoHandler(JsonAPIHandler):
+    def handle(self):
+        bet_tx = self.request.get("bet_tx")
+        betting_addr = self.request.get("betting_addr")
+        if not bet_tx or not betting_addr:
+            return {"success": False, "error": "missing parameters"}
+        
+        bet = Bet.get(bet_tx, betting_addr)
+        if not bet:
+            return {"success": False, "error": "bet not found"}
+        
+        return {"success": True, "bet": bet.to_dict()}
+
 class CallbackHandler(webapp2.RequestHandler):
     tx = None
     block_hash = None
@@ -190,6 +203,7 @@ app = webapp2.WSGIApplication([
     # frontend
     ('/api/betting_addresses', BettingAddressesHandler),
     ('/api/bets/list', BetListHandler),
+    ('/api/bets/get', BetInfoHandler),
     
     # backend
     ('/api/bootstrap', BootstrapHandler),
