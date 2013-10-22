@@ -32,7 +32,7 @@ $(document).ready(function() {
 					"<tr> " +
 					"<td>"+p.betting_addr+"</td> " +
 					"<td><a href='https://blockchain.info/tx/"+p.bet_tx+"'>"+p.bet_tx+"</a></td> " +
-					"<td>"+p.timestamp+"</td> " +
+					"<td><a href='/api/bets/get?timestamp="+p.timestamp+"'>"+p.timestamp_str+"</a></td> " +
 					"<td>"+p.better+"</td> " +
 					"<td>"+p.amount+"</td> " +
 					"<td>"+p.result+"</td> " +

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-import webapp2, json, jinja2, os, logging, datetime
+import webapp2, json, jinja2, os, logging, datetime, calendar
 from model import Bet, PENDING, LOSS, WIN
 from blockchain import callback_secret_valid, get_tx, get_block, payment
 
@@ -37,6 +37,10 @@ ADDRESS_PAYOUT = {
     HEX_ADDRESS:   calculate_payout(HEX_ADDRESS)
 }
 
+
+
+
+
 class StaticHandler(webapp2.RequestHandler):
     def get(self, _):
         name = self.request.path.split("/")[1]
@@ -59,7 +63,7 @@ class JsonAPIHandler(webapp2.RequestHandler):
     def get(self):
         resp = self.handle()
         self.response.headers['Content-Type'] = "application/json"
-        dthandler = lambda obj: obj.strftime("%Y-%m-%d %H:%M:%S") if isinstance(obj, datetime.datetime) else None
+        dthandler = lambda obj: calendar.timegm(obj.utctimetuple())+obj.microsecond / 1000000.0 if isinstance(obj, datetime.datetime) else None
         self.response.write(json.dumps(resp, default=dthandler))
 
 class BootstrapHandler(JsonAPIHandler):
@@ -81,12 +85,11 @@ class BetListHandler(JsonAPIHandler):
 
 class BetInfoHandler(JsonAPIHandler):
     def handle(self):
-        bet_tx = self.request.get("bet_tx")
-        betting_addr = self.request.get("betting_addr")
-        if not bet_tx or not betting_addr:
+        timestamp = self.request.get("timestamp")
+        if not timestamp:
             return {"success": False, "error": "missing parameters"}
-        
-        bet = Bet.get(bet_tx, betting_addr)
+        timestamp = datetime.datetime.fromtimestamp(float(timestamp))
+        bet = Bet.get(timestamp)
         if not bet:
             return {"success": False, "error": "bet not found"}
         

@@ -1,8 +1,9 @@
 from google.appengine.ext import db
-
+import datetime
 
 PENDING, WIN, LOSS = 0, 1, 2
 RESULTS = [PENDING, WIN, LOSS]
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 class Bet(db.Model):
     # this two rows uniquely identify the Bet (address, tx)
@@ -18,15 +19,17 @@ class Bet(db.Model):
     
     
     def to_dict(self):
-        return db.to_dict(self)
+        d = db.to_dict(self)
+        d["timestamp_str"] = d["timestamp"].strftime(DATE_FORMAT)
+        return d
 
     @classmethod 
     def new(cls, better, betting_addr, bet_tx, amount):
         return cls(better=better, betting_addr=betting_addr, bet_tx=bet_tx, amount=amount, result=PENDING)
 
     @classmethod
-    def get(cls, bet_tx, betting_addr):
-        return cls.all().filter("bet_tx = ", bet_tx).filter("betting_addr = ", betting_addr).get()
+    def get(cls, timestamp):
+        return cls.all().filter("timestamp = ", timestamp).get()
 
     @classmethod
     def get_latest(cls):
