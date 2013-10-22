@@ -4,39 +4,12 @@
 import webapp2, json, jinja2, os, logging, datetime, calendar
 from model import Bet, PENDING, LOSS, WIN
 from blockchain import callback_secret_valid, get_tx, get_block, payment
+from config import ADDRESS_PAYOUT, ADDRESS_WINNERS, calculate_odds,\
+    BET_ADDRESSES, HOUSE_ADDRESS
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'])
-
-
-MINOR_ADDRESS = "1Fdz9kvAAurZYVE5ZchHo2iR2k8xc7BD7D"
-MAJOR_ADDRESS = "15vaMvzo467iVGLUTEAq28B13QoNhkVa1B"
-HEX_ADDRESS = "178tqyUVZchMWfWA8onCgJS18kmrFwKCLZ"
-
-HOUSE_ADDRESS = "1FkYYQBStF5z9Hv3JQ5p2ruHRembeqSokE"
-
-BET_ADDRESSES = [MINOR_ADDRESS, MAJOR_ADDRESS, HEX_ADDRESS]
-
-FULL_ALPHABET = "0123456789abcdef"
-HOUSE_EDGE = 1.85 / 100.0
-ADDRESS_WINNERS = {
-    MINOR_ADDRESS: '01234',
-    MAJOR_ADDRESS: '56789',
-    HEX_ADDRESS:   'abcdef'
-}
-
-def calculate_odds(address):
-    return len(FULL_ALPHABET) / float(len(ADDRESS_WINNERS[address]))
-def calculate_payout(address):
-    return calculate_odds(address) * (1 - HOUSE_EDGE)
-
-ADDRESS_PAYOUT = {
-    MINOR_ADDRESS: calculate_payout(MINOR_ADDRESS),
-    MAJOR_ADDRESS: calculate_payout(MAJOR_ADDRESS),
-    HEX_ADDRESS:   calculate_payout(HEX_ADDRESS)
-}
-
 
 
 
@@ -68,7 +41,7 @@ class JsonAPIHandler(webapp2.RequestHandler):
 
 class BootstrapHandler(JsonAPIHandler):
     def handle(self):
-        Bet.new("new", "312", "0abfc1746923", 1000).put()
+        Bet.new("new", "15vaMvzo467iVGLUTEAq28B13QoNhkVa1B", "0abfc1746923", 1000).put()
         return {"success":True}
     
 class BettingAddressesHandler(JsonAPIHandler):
@@ -175,8 +148,9 @@ class CallbackHandler(webapp2.RequestHandler):
             better = self.get_pay_addr(tx)
             if not tx:
                 return "error: unable to retrieve tx."
-            bet = Bet.new(better=better, betting_addr=address, bet_tx=tx_hash, amount=value)
-            bet.put()
+            if not Bet.exists(address, tx_hash):
+                bet = Bet.new(better=better, betting_addr=address, bet_tx=tx_hash, amount=value)
+                bet.put()
         
         if confirmations < 1:
             return "error: unconfirmed."
@@ -186,9 +160,10 @@ class CallbackHandler(webapp2.RequestHandler):
             if not tx:
                 return "error: unable to retrieve tx."
             result = self.process_bet(tx, address)
+            
             if result is not True:
                 return "error: process: " + result
-            bet = Bet.get(tx_hash, address)
+            bet = Bet.get_by_data(address, tx_hash)
             if not bet:
                 better = self.get_pay_addr(tx)
                 bet = Bet.new(better, address, tx_hash, value)

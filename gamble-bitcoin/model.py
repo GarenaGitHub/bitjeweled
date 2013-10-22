@@ -1,5 +1,7 @@
 from google.appengine.ext import db
 import datetime
+from blockchain import satoshi2btc
+from config import ADDRESS_WINNERS
 
 PENDING, WIN, LOSS = 0, 1, 2
 RESULTS = [PENDING, WIN, LOSS]
@@ -20,7 +22,9 @@ class Bet(db.Model):
     
     def to_dict(self):
         d = db.to_dict(self)
-        d["timestamp_str"] = d["timestamp"].strftime(DATE_FORMAT)
+        d["timestamp_str"] = self.timestamp.strftime(DATE_FORMAT)
+        d["address_winners"] = ADDRESS_WINNERS.get(self.betting_addr)
+        d["amount_btc"] = satoshi2btc(self.amount)
         return d
 
     @classmethod 
@@ -34,6 +38,13 @@ class Bet(db.Model):
     @classmethod
     def get_latest(cls):
         return cls.all().order('-timestamp').run(limit=10)
+
+    @classmethod
+    def get_by_data(cls, betting_addr, bet_tx):
+        return cls.all().filter("betting_addr =", betting_addr). filter("bet_tx =", bet_tx).get()
+    @classmethod
+    def exists(cls, betting_addr, bet_tx):
+        return cls.get_by_data(betting_addr, bet_tx) != None
     
     
 

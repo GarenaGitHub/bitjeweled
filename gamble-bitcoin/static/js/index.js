@@ -6,6 +6,13 @@ $(document).ready(function() {
 		2: "Loss"
 	};
 	
+	var shorten = function(s) {
+		if (s == null) {
+			return null;
+		}
+	    return s.substring(0,8);
+	}
+	
 	var betting_addresses = $("#betting_addresses")
 	$.getJSON("/api/betting_addresses", function(data) {
 		betting_addresses.html('');
@@ -29,22 +36,22 @@ $(document).ready(function() {
 			bets.html("");
 			var items = [];
 			$.each(data.list, function(key, p) {
-				if (!p.pay_tx) {
-					p.pay_tx = "Pending result"
-				}
 				if (!p.bet_block) {
 					p.bet_block = "Pending result"
 				}
+				
+				var pay_tx_part = p.pay_tx?"<td><a href='https://blockchain.info/tx/"+p.pay_tx+"'>"+shorten(p.pay_tx)+"</a></td> ":"<td> - </td> ";
+				
 				items.push(
 					"<tr> " +
-					"<td><a href='https://blockchain.info/address/"+p.better+"'>"+p.betting_addr+"</a></td> " +
-					"<td><a href='https://blockchain.info/tx/"+p.bet_tx+"'>"+p.bet_tx+"</a></td> " +
+					"<td><a href='https://blockchain.info/address/"+p.betting_addr+"'>"+shorten(p.address_winners)+"</a></td> " +
+					"<td><a href='https://blockchain.info/tx/"+p.bet_tx+"'>"+shorten(p.bet_tx)+"</a></td> " +
 					"<td><a href='/detail/"+p.timestamp+"'>"+p.timestamp_str+"</a></td> " +
-					"<td><a href='https://blockchain.info/address/"+p.better+"'>"+p.better+"</a></td> " +
+					"<td><a href='https://blockchain.info/address/"+p.better+"'>"+shorten(p.better)+"</a></td> " +
 					"<td>"+p.amount+"</td> " +
 					"<td><a href='/detail/"+p.timestamp+"'>"+result_to_str[p.result]+"</a></td> " +
-					"<td>"+p.bet_block+"</td> " +
-					"<td>"+p.pay_tx+"</td> " +
+					"<td>"+shorten(p.bet_block)+"</td> " +
+					pay_tx_part +
 					"</tr>"		
 				);
 			});
