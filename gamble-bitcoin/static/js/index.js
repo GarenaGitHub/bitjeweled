@@ -22,7 +22,7 @@ $(document).ready(function() {
 				text : data[i].winners + " " + data[i].addr + " ("
 						+ data[i].odds * 100
 						+ "%) / payout multiplier: x"
-						+ data[i].payout.toFixed(5)
+						+ data[i].payout.toFixed(5),
 			})
 
 			ba.appendTo(betting_addresses);

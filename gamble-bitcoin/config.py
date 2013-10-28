@@ -15,6 +15,12 @@ ADDRESS_WINNERS = {
     HEX_ADDRESS:   'abcdef'
 }
 
+ADDRESS_TYPE = {
+    MINOR_ADDRESS: 'Low',
+    MAJOR_ADDRESS: 'High',
+    HEX_ADDRESS:   'Hex'            
+}
+
 def calculate_odds(address):
     return len(FULL_ALPHABET) / float(len(ADDRESS_WINNERS[address]))
 def calculate_payout(address):

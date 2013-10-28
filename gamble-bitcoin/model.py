@@ -1,7 +1,7 @@
 from google.appengine.ext import db
 import datetime
 from blockchain import satoshi2btc
-from config import ADDRESS_WINNERS
+from config import ADDRESS_WINNERS, ADDRESS_TYPE
 
 PENDING, WIN, LOSS = 0, 1, 2
 RESULTS = [PENDING, WIN, LOSS]
@@ -23,8 +23,9 @@ class Bet(db.Model):
     def to_dict(self):
         d = db.to_dict(self)
         d["timestamp_str"] = self.timestamp.strftime(DATE_FORMAT)
-        d["address_winners"] = ADDRESS_WINNERS.get(self.betting_addr)
+        d["address_winners"] = ",".join(ADDRESS_WINNERS.get(self.betting_addr))
         d["amount_btc"] = satoshi2btc(self.amount)
+        d["type"] = ADDRESS_TYPE[self.betting_addr]
         return d
 
     @classmethod 
