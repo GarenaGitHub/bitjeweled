@@ -26,6 +26,7 @@ class Bet(db.Model):
         d["address_winners"] = ",".join(ADDRESS_WINNERS.get(self.betting_addr))
         d["amount_btc"] = satoshi2btc(self.amount)
         d["type"] = ADDRESS_TYPE[self.betting_addr]
+        d["last"] = self.bet_block[-1] if self.bet_block else None
         return d
 
     @classmethod 

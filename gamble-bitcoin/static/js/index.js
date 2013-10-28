@@ -6,7 +6,7 @@ $(document).ready(function() {
 		2: "Loss"
 	};
 	
-	var N = 8;
+	var N = 11;
 	var shorten = function(s, last) {
 		if (s == null) {
 			return null;

@@ -11,7 +11,8 @@ $(document).ready(function() {
 		amount_btc: "Bet amount",
 		bet_block: "Bet block",
 		betting_addr: "Betting address",
-		type: "Bet Type"
+		type: "Bet Type",
+		last: "Bet block last digit"
 	}
 	
 	var pathname = window.location.pathname;
